@@ -1,30 +1,92 @@
-# Blocks
+# Where for Whom? {#whom}
 
-## Equations
+Forthcoming: inclusiveness of popular places by demographics
 
-Here is an equation.
+<br>
 
-\begin{equation} 
-  f\left(k\right) = \binom{n}{k} p^k\left(1-p\right)^{n-k}
-  (\#eq:binom)
-\end{equation} 
+```{r coocurrence, include = FALSE}
 
-You may refer to using `\@ref(eq:binom)`, like see Equation \@ref(eq:binom).
+#get wide campus data (mostly for edges stuff)
+#campus_wide<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_campus_bdb_wide.csv"
+  #)
+#) %>%
+  #within(cohort[is.na(cohort)]<- "no cohort")
 
+#get campus edges data
+#campus_edges<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_campus_edges.csv"
+  #)
+#)
 
-## Theorems and proofs
+#get emu_wide data (mostly for edges stuff)
+#emu_wide<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_emu_bdb_wide.csv"
+  #),
+  #guess_max = 1900
+#) %>%
+  #within(cohort[is.na(cohort)]<- "no cohort")
 
-Labeled theorems can be referenced in text using `\@ref(thm:tri)`, for example, check out this smart theorem \@ref(thm:tri).
+#get emu edges data
+#emu_edges<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_emu_edges.csv"
+  #)
+#)
 
-::: {.theorem #tri}
-For a right triangle, if $c$ denotes the *length* of the hypotenuse
-and $a$ and $b$ denote the lengths of the **other** two sides, we have
-$$a^2 + b^2 = c^2$$
-:::
+#src_b_dbe<- left_join(
+ # long %>%
+  #  filter(
+   #   ayear == 1718 &
+    #    sent == "Belong" &
+     #   place == "SRC"
+    #) %>%
+    #rename(b0 = place) %>%
+    #select(id, b0) %>%
+    #arrange(desc(id)),
+  #wide %>%
+   # filter(
+    #  ayear == 1718 &
+     #   sent == "Don't Belong"
+    #) %>%
+     # select(id, db1:db3),
+  #by = "id"
+#) %>%
+ # pivot_longer(
+  #  cols = b0:db3,
+   # names_to = "place_num",
+    #values_to = "place"
+  #) %>%
+  #select(-place_num) %>%
+  #cooccurrence(
+   # group = "id",
+    #term = "place"
+  #) %>%
+  #data.frame() %>%
+  #rename(
+   # place_1 = term1,
+    #place_2 = term2
+  #) %>%
+  #filter(
+   # place_1 == "SRC" |
+    #  place_2 == "SRC"
+  #)
 
-Read more here <https://bookdown.org/yihui/bookdown/markdown-extensions-by-bookdown.html>.
+#src_same<- src_b_dbe %>%
+ # filter(
+  #  place_1 == "SRC" &
+   #   place_2 == "SRC"
+  #)
 
-## Callout blocks
-
-
-The R Markdown Cookbook provides more help on how to use custom blocks to design your own callouts: https://bookdown.org/yihui/rmarkdown-cookbook/custom-blocks.html
+```

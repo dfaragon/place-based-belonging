@@ -1,0 +1,786 @@
+--- 
+title: "Student Wellbeing and Success Initiative"
+subtitle: "Place-Based Belonging 1.0"
+author: "Brian A. M. Clark, Ph.D."
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+# url: your book url like https://bookdown.org/yihui/bookdown
+# cover-image: path to the social sharing image like images/cover.jpg
+description: |
+  This is a minimal example of using the bookdown package to write a book.
+  The HTML output format for this example is bookdown::gitbook,
+  set in the _output.yml file.
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+---
+
+# url: your book url like https://bookdown.org/yihui/bookdown
+
+Placeholder
+
+
+## Who is SWaSI? 
+
+<!--chapter:end:index.Rmd-->
+
+
+# What is this Document for?
+
+Placeholder
+
+
+## What is Place-Based Belonging?
+## How to Read this Document
+### Access
+### Focus
+### Flow
+
+<!--chapter:end:01-intro.Rmd-->
+
+
+# Summary {#cross}
+
+Placeholder
+
+
+## Chapters and sub-chapters
+## Captioned figures and tables
+
+<!--chapter:end:02-cross-refs.Rmd-->
+
+
+# Where?
+
+Placeholder
+
+
+## Tables {.tabset .tabset-pills .tabset-fade}
+### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+#### Overall
+#### Spring 2022 {.tabset .tabset-pills .tabset-fade}
+##### All Years
+##### 4th-Year
+##### 3rd-Year
+##### 2nd-Year
+##### 1st-Year
+#### Spring 2020 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-5th-Year
+##### 4th-Year
+##### 3rd-Year
+##### 2nd-Year
+##### 1st-Year
+#### Spring 2019 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-4th-Year
+##### 4th-Year
+##### 3rd-Year
+##### 2nd-Year
+##### 1st-Year
+#### Spring 2018 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-3rd-Year
+### International {.tabset .tabset-pills .tabset-fade}
+#### Overall
+#### Undergraduate and Graduate Spring 2022
+#### Undergraduate Spring 2020
+### Graduate {.tabset .tabset-pills .tabset-fade}
+## {-}
+## Campus Maps {.tabset .tabset-pills .tabset-fade}
+### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+#### Spring 2022 {.tabset .tabset-pills .tabset-fade}
+##### All Years {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 2nd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 1st-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Spring 2020 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-5th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 2nd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 1st-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Spring 2019 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 2nd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 1st-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Spring 2018 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Spring 2017 {.tabset .tabset-pills .tabset-fade}
+##### 1st-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+### International {.tabset .tabset-pills .tabset-fade}
+#### Undergraduate and Graduate Spring 2022 {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Undergraduate Spring 2020 {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+### Graduate {.tabset .tabset-pills .tabset-fade}
+#### Belong
+#### Don't Belong
+## {-}
+## Erb Memorial Union Maps {.tabset .tabset-pills .tabset-fade}
+### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+#### Spring 2022 {.tabset .tabset-pills .tabset-fade}
+##### All Years {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 2nd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 1st-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Spring 2020 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-5th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 2nd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 1st-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Spring 2019 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 4th-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 2nd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### 1st-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Spring 2018 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-3rd-Year {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+### International {.tabset .tabset-pills .tabset-fade}
+#### Undergraduate and Graduate Spring 2022 {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Undergraduate Spring 2020 {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+### Graduate {.tabset .tabset-pills .tabset-fade}
+#### Belong
+#### Don't Belong
+## {-}
+## Campus Inclusiveness {.tabset .tabset-pills .tabset-fade}
+### Disaggregated and Less Delimited {.tabset .tabset-pills .tabset-fade}
+#### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Spring 2022 {.tabset .tabset-pills .tabset-fade}
+###### All Years
+###### 4th-Year
+###### 3rd-Year
+###### 2nd-Year
+###### 1st-Year
+##### Spring 2020 {.tabset .tabset-pills .tabset-fade}
+###### 1st-through-5th-Year
+###### 4th-Year
+###### 3rd-Year
+###### 2nd-Year
+###### 1st-Year
+##### Spring 2019 {.tabset .tabset-pills .tabset-fade}
+###### 1st-through-4th-Year
+###### 4th-Year
+###### 3rd-Year
+###### 2nd-Year
+###### 1st-Year
+##### Spring 2018 {.tabset .tabset-pills .tabset-fade}
+###### 1st-through-3rd-Year
+#### International {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Undergraduate and Graduate Spring 2022
+##### Undergraduate Spring 2020
+#### Graduate {.tabset .tabset-pills .tabset-fade}
+### Aggregated and More Delimited {.tabset .tabset-pills .tabset-fade}
+#### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Spring 2022 {.tabset .tabset-pills .tabset-fade}
+###### All Years
+###### 4th-Year
+###### 3rd-Year
+###### 2nd-Year
+###### 1st-Year
+##### Spring 2020 {.tabset .tabset-pills .tabset-fade}
+###### 1st-through-5th-Year
+###### 4th-Year
+###### 3rd-Year
+###### 2nd-Year
+###### 1st-Year
+##### Spring 2019 {.tabset .tabset-pills .tabset-fade}
+###### 1st-through-4th-Year
+###### 4th-Year
+###### 3rd-Year
+###### 2nd-Year
+###### 1st-Year
+##### Spring 2018 {.tabset .tabset-pills .tabset-fade}
+###### 1st-through-3rd-Year
+#### International {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Undergraduate and Graduate Spring 2022
+##### Undergraduate Spring 2020
+#### Graduate {.tabset .tabset-pills .tabset-fade}
+## {-}
+## Erb Memorial Union Inclusiveness {.tabset .tabset-pills .tabset-fade}
+### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+#### Overall
+#### Spring 2022 {.tabset .tabset-pills .tabset-fade}
+##### All Years
+##### 4th-Year
+##### 3rd-Year
+##### 2nd-Year
+##### 1st-Year
+#### Spring 2020 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-5th-Year
+##### 4th-Year
+##### 3rd-Year
+##### 2nd-Year
+##### 1st-Year
+#### Spring 2019 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-4th-Year
+##### 4th-Year
+##### 3rd-Year
+##### 2nd-Year
+##### 1st-Year
+#### Spring 2018 {.tabset .tabset-pills .tabset-fade}
+##### 1st-through-3rd-Year
+### International {.tabset .tabset-pills .tabset-fade}
+#### Overall
+#### Undergraduate and Graduate Spring 2022
+#### Undergraduate Spring 2020
+### Graduate {.tabset .tabset-pills .tabset-fade}
+## {-}
+
+<!--chapter:end:03-parts.Rmd-->
+
+
+# Why There? {#why}
+
+Placeholder
+
+
+## Wordnets {.tabset .tabset-pills .tabset-fade}
+### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+#### Allen {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Autzen Stadium {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Cemetery {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Chapman {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Erb Memorial Union {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong
+##### Overall Don't Belong
+##### Atrium East {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Courtyard {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Craft {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Duck Nest {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Falling Sky {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Fishbowl {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Fresh Market {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### LGBTQA3 {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Mills Center {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Multicultural Center {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### O Lounge {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Taylor Lounge {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Women's Center {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Frohnmayer {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Hayward Field {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### HEDCO {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Jaqua {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Knight Law {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Lawrence {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Library {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Lillis Business Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Lokey Science Complex {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong
+##### Overall Don't Belong
+##### Columbia {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Klamath {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Lewis {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Science Commons {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Willamette {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Matthew Knight Arena {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### McKenzie {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Oregon {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Straub {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Student Rec Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Tykeson {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### University Health Services {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### University Housing {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong
+##### Overall Don't Belong
+##### Barnhart {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Bean {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Carson {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Earl {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Global Scholars {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Hamilton {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Kalapuya Ilihi {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Living Learning {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Unthank {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Walton {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+### International {.tabset .tabset-pills .tabset-fade}
+#### Erb Memorial Union {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong 
+##### Overall Don't Belong
+##### Mills Center {.tabset .tabset-pills .tabset-fade}
+###### Belong 
+###### Don't Belong
+#### Library {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong
+#### Lokey Science Complex {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong 
+##### Overall Don't Belong
+#### Student Rec Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong
+#### University Housing {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong 
+##### Overall Don't Belong
+### Graduate {.tabset .tabset-pills .tabset-fade}
+#### Library {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong
+#### Student Rec Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong 
+## {-}
+## Wordclouds {.tabset .tabset-pills .tabset-fade}
+### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+#### Allen {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Autzen Stadium {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Cemetery {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Chapman {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Erb Memorial Union {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong
+##### Overall Don't Belong
+##### Atrium East {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Courtyard {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Craft {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Duck Nest {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Falling Sky {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Fishbowl {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Fresh Market {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### LGBTQA3 {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Mills Center {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Multicultural Center {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### O Lounge {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Taylor Lounge {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Women's Center {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Frohnmayer {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Hayward Field {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### HEDCO {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Jaqua {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Knight Law {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Lawrence {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Library {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Lillis Business Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Lokey Science Complex {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong
+##### Overall Don't Belong
+##### Columbia {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Klamath {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Lewis {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Science Commons {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Willamette {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+#### Matthew Knight Arena {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### McKenzie {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Oregon {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Straub {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Student Rec Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### Tykeson {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### University Health Services {.tabset .tabset-pills .tabset-fade}
+##### Belong
+##### Don't Belong
+#### University Housing {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong
+##### Overall Don't Belong
+##### Barnhart {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Bean {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Carson {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Earl {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Global Scholars {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Hamilton {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Living Learning {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Kalapuya Ilihi {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Unthank {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+##### Walton {.tabset .tabset-pills .tabset-fade}
+###### Belong
+###### Don't Belong
+### International {.tabset .tabset-pills .tabset-fade}
+#### Erb Memorial Union {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong 
+##### Overall Don't Belong
+##### Mills Center {.tabset .tabset-pills .tabset-fade}
+###### Belong 
+###### Don't Belong
+#### Library {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong
+#### Lokey Science Complex {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong 
+##### Overall Don't Belong
+#### Student Rec Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong
+#### University Housing {.tabset .tabset-pills .tabset-fade}
+##### Overall Belong 
+##### Overall Don't Belong
+### Graduate {.tabset .tabset-pills .tabset-fade}
+#### Library {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong
+#### Student Rec Complex {.tabset .tabset-pills .tabset-fade}
+##### Belong 
+##### Don't Belong 
+## {-}
+## Emotions {.tabset .tabset-pills .tabset-fade}
+### US Undergraduate {.tabset .tabset-pills .tabset-fade}
+#### Allen
+#### Autzen Stadium
+#### Cemetery
+#### Chapman
+#### Erb Memorial Union {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Atrium East
+##### Courtyard
+##### Craft Center
+##### Duck Nest
+##### Falling Sky
+##### Fishbowl
+##### Fresh Market
+##### LGBTQA3
+##### Mills Center
+##### Multicultral Center
+##### O Lounge
+##### Taylor Lounge
+##### Women's Center
+#### Frohnmayer
+#### Hayward Field
+#### HEDCO
+#### Jaqua
+#### Knight Law
+#### Lawrence
+#### Library
+#### Lillis Business Complex
+#### Lokey Science Complex {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Columbia
+##### Klamath
+##### Lewis
+##### Science Commons
+##### Willamette
+#### Matthew Knight Arena
+#### McKenzie
+#### Oregon
+#### Straub
+#### Student Rec Complex
+#### Tykeson
+#### University Health Services
+#### University Housing {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Barnhart
+##### Bean
+##### Carson
+##### Earl
+##### Global Scholars
+##### Hamilton
+##### Kalapuya Ilihi
+##### Living Learning
+##### Unthank
+##### Walton
+### International {.tabset .tabset-pills .tabset-fade}
+#### Erb Memorial Union {.tabset .tabset-pills .tabset-fade}
+##### Overall
+##### Mills Center
+#### Library
+#### Lokey Science Complex
+#### Student Rec Complex
+#### University Housing
+### Graduate {.tabset .tabset-pills .tabset-fade}
+#### Library
+#### Student Rec Complex
+## {-}
+
+<!--chapter:end:04-citations.Rmd-->
+
+
+# Where for Whom? {#whom}
+
+Placeholder
+
+
+
+<!--chapter:end:05-blocks.Rmd-->
+
+# Between Here and Where? {#between}
+
+Forthcoming: network visualizations of connections between places
+
+<br>
+
+<!--chapter:end:06-share.Rmd-->
+
+# Supplemental Method {#supmeth}
+
+Forthcoming: detailed information about method development, procedure, and analysis
+
+For now, see Table and Figure notes, except for:
+
+```{r, emotion wheel, include = FALSE}
+library(tidyverse)
+emo_wheel<- image_read("../images/Plutchik-wheel.png") %>%
+  image_background("#A2AAAD")
+  
+```
+## Figure 1. Plutchik's Wheel of Emotions {#f1}
+
+```{r, out.width = "100%", echo = FALSE, warning = FALSE}
+emo_wheel
+```
+
+Note: Image retrieved from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Plutchik-wheel.svg){target="_blank"}.
+
+<br>
+
+<!--chapter:end:07-references.Rmd-->
+

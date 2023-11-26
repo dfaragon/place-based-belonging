@@ -1,11 +1,60 @@
-# Hello bookdown 
+# What is this Document for?
 
-All chapters start with a first-level heading followed by your chapter title, like the line above. There should be only one first-level heading (`#`) per .Rmd file.
+The purposes of this document are:
 
-## A section
+1.  to conduct a comprehensive analysis of place-based belonging data
+2.  to provide a general reference and resource tool for higher education professionals who do things and make decisions about things that affect students (many of those things are tied to or rooted in physical places)
+3.  to describe the development of methods used to generate place-based belonging data
 
-All chapter sections start with a second-level (`##`) or higher heading followed by your section title, like the sections above and below here. You can have as many as you want within a chapter.
+[This document is currently under construction and is in a "good enough for now" state]{style="color: #11E8FF"}. It will be incrementally updated through Summer 2023, which will include adding Spring 2023 data. At that point, it will be considered complete, because we intend to augment methods dramatically the following year. Forthcoming sections include an overall summary, two content sections, and the supplemental method section. Forthcoming features include alternative text for plots and images and hover text for treemaps.
 
-### An unnumbered section {-}
+## What is Place-Based Belonging?
 
-Chapters and sections are numbered by default. To un-number a heading, add a `{.unnumbered}` or the shorter `{-}` at the end of the heading, like in this section.
+Over the last several years, we have been incrementally exploring the concept of place-based belonging: the idea that people's affinity for physical places, or lack thereof, is intertwined with their sense of whether they fit in socially. Theoretically, it is a special case of the environmental psychology concept of place attachment ([[Altman & Low, 1992](https://link.springer.com/chapter/10.1007/978-1-4684-8753-4_1){target="_blank"}]{style="color: #DF63A4"}), with conceptual focus on the place dimension over the person or process dimensions ([[Scannell & Gifford, 2010](https://uoregon-my.sharepoint.com/:b:/g/personal/clark13_uoregon_edu/EUOwgiMvl5pKonwqByWz8BoBkjCnPQk0VAw9mm1fzn3XfQ?e=WW9q1Z){target="_blank"}]{style="color: #DF63A4"}) and content focus on social meanings with which places are imbued as a subset of the general affective associations people have with places. Methodologically, it departs significantly from the psychometric approach of much place attachment research (e.g., [[Williams, 2014](https://uoregon-my.sharepoint.com/:b:/g/personal/clark13_uoregon_edu/EVGZxfZPNRlEoofpQI9UQz4BreUZgn5Z-W0Z7gVMNK7fdQ?e=xTznoC){target="_blank"}]{style="color: #DF63A4"}; [[Williams & Vaske, 2003](https://uoregon-my.sharepoint.com/:b:/g/personal/clark13_uoregon_edu/EVXdi_qf-_hPpRc_iruUoNwBJ1ma0fuw3ZHknWZWW2YAXQ?e=pVPMkt){target="_blank"}]{style="color: #DF63A4"}), aligning more closely with cultural mapping. Cultural mapping is an interdisciplinary field broadly tied together by a mode of inquiry and general methodology that reckons with documenting a community's place-based features and assets for a wide range of purposes. See [[Duxbury et al. (2015)](https://uoregon-my.sharepoint.com/:b:/g/personal/clark13_uoregon_edu/EQSU3UqGrw1GpScojaHKFVUBLiH2uuzMOtTlFmkpMoEr6w?e=jE9T38){target="_blank"}]{style="color: #DF63A4"} for an introduction and the [[whole book](https://www.routledge.com/Cultural-Mapping-as-Cultural-Inquiry/Duxbury-Garrett-Petts-MacLennan/p/book/9780367599003){target="_blank"}]{style="color: #DF63A4"} for varied perspectives. Place-based belonging, specifically, has roots in humanistic and cultural geography traditions, which feed into cultural mapping, and is depicted by a kind of symbol mapping ([[Soini, 2001](https://uoregon-my.sharepoint.com/:b:/g/personal/clark13_uoregon_edu/EVIw9hlo0LdGkCrxUpVFoYwBg__H3LRwrnGmUAavpQ1pRg?e=JyQV4u)]{style="color: #DF63A4"}).
+
+Adapting methods from [<span style = "color: #DF63A4">Pitcher & Royal (2016)](https://uoregon-my.sharepoint.com/:b:/g/personal/clark13_uoregon_edu/ETDssdQ-bW1LsSA_db4aaVgBd_vO02wIffeQ_AqgQ3TgwQ?e=yBVY5o){target="_blank"}, we ask students to click up to three places on a campus map they feel like they "belong, fit in, are connected, are accepted, etc.," and separately, to click up to three places they feel like they "[do not]{style="color: #11E8FF"} belong, [do not]{style="color: #11E8FF"} fit in, are [dis]{style="color: #11E8FF"}connected, are [not]{style="color: #11E8FF"} accepted, etc." After clicking "belong" and "don't belong" places on a campus map, we follow up about select places to try and understand more about them. Generally, we ask students to describe in text why they feel the ways they do about the places. A unique aspect of follow-up involves delving into the Erb Memorial Union (EMU), which is a compact set of places, which cannot be disaggregated given a campus map and which form a unified place we call the EMU. If a student clicks on the EMU at the campus level, we follow up with a map of the EMU and ask them to click on places within the EMU they feel like they belong and don't belong, and then ask them to describe why. (Map and follow-up methods have varied over the years of development. See [[Supplemental Method](#supmeth)]{style="color: #DF63A4"} for more details.)
+
+The methods above generate data that allow us to do several things:
+
+-   describe a place and rank-order multiple places in terms of belong and don't belong sentiments
+-   describe a place and rank-order multiple places in terms of inclusiveness, which is a combination of both belong and don't belong sentiments
+-   disaggregate a place's inclusiveness by demographics
+-   explore why places have belong or don't belong sentiments associated with them
+-   describe how places relate to each other through belong and don't belong sentiments
+
+## How to Read this Document
+
+### Access
+
+Other than our office or affiliated departments emailing or messaging individuals with the html document itself, it can be found at the Student Wellbeing and Success Initiative [[SharePoint site](https://uoregon.sharepoint.com/sites/SWaSI){target="_blank"}]{style="color: #DF63A4"} or [[OneDrive folder](https://uoregon-my.sharepoint.com/:f:/g/personal/reneedr_uoregon_edu/EvEnB12lziJEsktPwBpEmCYB33U133tkaLMlMSwC7UqmRg){target="_blank"}]{style="color: #DF63A4"}. If accessing this document from SharePoint, OneDrive, or Teams, for full functionality of document features, click "Download" in the ribbon at the top and then open with your browser. Microsoft products neither render table tabs nor open in-document links correctly. Your browser will, even in mobile formats.
+
+### Focus
+
+You need not read or even look at ***all*** of this document at any given time. You need not understand all of it the first time you look at it. You need not remember all of it no matter how many times you look at it. You will not be tested on it. It will be available for reference when you need it. And you can ask questions about it when they occur to you.
+
+The document is generally geared toward exploring place-based belonging through visualization and description.
+
+### Flow
+
+```{r include = FALSE}
+waves<- c("Spring 2022, Spring 2020, Spring 2019, Spring 2018")
+```
+
+There are six main sections after this one:
+
+-   [[Summary](#summary)]{style="color: #DF63A4"}
+    -   This section is forthcoming and will contain the overall take-home message. It will be the last section produced after other content sections are completed.
+-   [[Where?](#where)]{style="color: #DF63A4"}
+    -   This section contains interactive tables of place-based belonging metrics, heat maps of clicks on places, and treemaps and bar plots of place inclusiveness.
+    -   It is organized hierarchically by three levels: 1. population (US undergraduate, international, graduate); 2. wave (`r waves`); 3. year in school (4th-year, 3rd-year, 2nd-year, 1st-year).
+        -   Spring 2021 is missing due to remote operations during the pandemic.
+        -   Heat maps include Spring 2017 but tables, treemaps, and bar plots do not because clicks were not yet quantified.
+-   [[Why There?](#why)]{style="color: #DF63A4"}
+    -   This section contains wordnets of adjacent adjective-noun pairs from, wordclouds of keywords from, and emotion classifications of students' descriptions of why they feel they ways they do about places.
+    -   It is organized hierarchically by two levels: 1. population (US undergraduate, international, graduate); 2. place (Erb Memorial Union, Lokey Science Complex, and University Housing contain nested subordinate places for US undergraduates).
+-   [[Where for Whom?](#whom)]{style="color: #DF63A4"}
+    -   This section is forthcoming and will contain inclusiveness of popular places disaggregated by demographics.
+-   [[Between Here and Where?](#between)]{style="color: #DF63A4"}
+    -   This section is forthcoming and will contain networks of places based on "belong" and "don't belong" sentiments.
+-   [[Supplemental Method](#supmeth)]{style="color: #DF63A4"}
+    -   This section is forthcoming. It currently contains a Figure referenced in wordcloud notes and will contain detailed information about method development, procedure, and analysis. For now, methodological information is contained in notes.

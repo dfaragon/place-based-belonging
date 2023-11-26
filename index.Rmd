@@ -1,6 +1,7 @@
 --- 
-title: "A Minimal Book Example"
-author: "John Doe"
+title: "Student Wellbeing and Success Initiative"
+subtitle: "Place-Based Belonging 1.0"
+author: "Brian A. M. Clark, Ph.D."
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: book
@@ -15,41 +16,25 @@ link-citations: yes
 github-repo: rstudio/bookdown-demo
 ---
 
-# About
+# Who is SWaSI?
 
-This is a _sample_ book written in **Markdown**. You can use anything that Pandoc's Markdown supports; for example, a math equation $a^2 + b^2 = c^2$.
+Please contact Brian Clark with questions or suggestions for improvement – preferred via Teams, otherwise clark13@uoregon.edu.
 
-## Usage 
+Please use the following when referencing this document: Clark, B. A. M. (2023). *Place-Based Belonging 1.0*. Office of Assessment and Research, Division of Student Life, University of Oregon.
 
-Each **bookdown** chapter is an .Rmd file, and each .Rmd file can contain one (and only one) chapter. A chapter *must* start with a first-level heading: `# A good chapter`, and can contain one (and only one) first-level heading.
+## Who is SWaSI? 
 
-Use second-level and higher headings within chapters like: `## A short section` or `### An even shorter section`.
 
-The `index.Rmd` file is required, and is also your first book chapter. It will be the homepage when you render the book.
 
-## Render book
+The [<span style = "color: #DF63A4">Student Wellbeing and Success Initiative</span>](https://uoregon-my.sharepoint.com/:u:/g/personal/clark13_uoregon_edu/EY4zzGdo3o9ImgpS89tM2wAB4CrNAqmPyAxDAZQ-mNuzJw){target="_blank"} is:
 
-You can render the HTML version of this example book without changing anything:
+* an ongoing, multicohort, longitudinal research program designed to holistically understand institutional inputs to undergraduate students’ wellbeing and success across the college experience
+* an educational program designed to equitably improve wellbeing and success outcomes, particularly among historically marginalized populations (e.g., first-generation students, Black students)
+* an assessment and evaluation program designed to gauge whether various programmatic activities, including but not limited to the ones internal to the Initiative itself, are meeting their stated goals
 
-1. Find the **Build** pane in the RStudio IDE, and
+Better understanding better informs us, affording opportunities to improve institutional practices that equitably support students’ learning and development and foster their achievement and persistence. Unlike many for-profit companies, which use data to sell people, this is a strategy that uses data to <span style = "color: #11E8FF">empower</span> people.
 
-1. Click on **Build Book**, then select your output format, or select "All formats" if you'd like to use multiple formats from the same book source files.
-
-Or build the book from the R console:
-
-```{r, eval=FALSE}
-bookdown::render_book()
-```
-
-To render this example to PDF as a `bookdown::pdf_book`, you'll need to install XeLaTeX. You are recommended to install TinyTeX (which includes XeLaTeX): <https://yihui.org/tinytex/>.
-
-## Preview book
-
-As you work, you may start a local server to live preview this HTML book. This preview will update as you edit the book when you save individual .Rmd files. You can start the server in a work session by using the RStudio add-in "Preview book", or from the R console:
-
-```{r eval=FALSE}
-bookdown::serve_book()
-```
+The Student Wellbeing and Success Initiative is led by Brian Clark, Assistant Director of the [<span style = "color: #DF63A4">Office of Assessment and Research</span>](https://studentlife.uoregon.edu/research){target="_blank"} in the [<span style = "color: #DF63A4">Division of Student Life</span>](https://studentlife.uoregon.edu/){target="_blank"}. It is supported primarily by the Office of the Vice President for Student Life with integral support from units of the Division of Student Life -- the [<span style = "color: #DF63A4">Department of Physical Education and Recreation</span>](https://rec.uoregon.edu/){target="_blank"}, the [<span style = "color: #DF63A4">Erb Memorial Union</span>](https://emu.uoregon.edu/){target="_blank"}, and the [<span style = "color: #DF63A4">Office of the Dean of Students</span>](https://dos.uoregon.edu/){target="_blank"} -- and across campus from many and varied units in [<span style = "color: #DF63A4">Global Engagement</span>](https://international.uoregon.edu/){target="_blank"}, the [<span style = "color: #DF63A4">Office of the Provost</span>](https://provost.uoregon.edu/), [<span style = "color: #DF63A4">Student Services and Enrollment Management</span>](https://ssem.uoregon.edu/){target="_blank"}, [<span style = "color: #DF63A4">UO Libraries</span>](https://library.uoregon.edu/){target="_blank"}, and [<span style = "color: #DF63A4">Undergraduate Education and Student Success</span>](https://uess.uoregon.edu/){target="_blank"}.
 
 
 ```{r include=FALSE}

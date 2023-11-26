@@ -1,8 +1,11 @@
-# Cross-references {#cross}
+# Summary {#cross}
+
+None of this is right. :)
 
 Cross-references make it easier for your readers to find and link to elements in your book.
 
 ## Chapters and sub-chapters
+
 
 There are two steps to cross-reference any heading:
 
