@@ -36,8 +36,45 @@ The document is generally geared toward exploring place-based belonging through 
 
 ### Flow
 
-```{r include = FALSE}
-waves<- c("Spring 2022, Spring 2020, Spring 2019, Spring 2018")
+```{r initial setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(viridis)
+library(reactable)
+library(htmltools)
+library(magick)
+library(treemapify)
+library(udpipe)
+library(tidytext)
+library(wordcloud2)
+library(igraph)
+library(ggraph)
+
+ay_1<- 2122 #CHANGE year (academic year format 1920 etc.)
+ay_2<- 2223 #CHANGE year (academic year format 1920 etc.)
+
+#function for big Ns that have , marks
+big_n<- function(x) {
+  prettyNum(x, big.mark = ",", scientific = F)
+}
+
+#stats that get 1 decimal like percentages
+stat_1<- function(x) {
+  formatC(x, format = "f", digits = 1)
+}
+
+#get place names
+places<- read_csv(here::here(
+  paste0(
+    "data/processed/pbb_eoy_1718_thru_",
+    ay_1,
+    "_places.csv"
+  )
+))
+
+waves<- c("Spring 2022, Spring 2020, Spring 2019, Spring 2018") #CHANGE add waves as more data come in
+
 ```
 
 There are six main sections after this one:
@@ -64,13 +101,13 @@ There are six main sections after this one:
 #read data ####
 
 #get long campus data
-campus_long<- read_csv(
+campus_long<- read_csv(here::here(
   paste0(
-    "../data/processed/pbb_eoy_1718_thru_",
+    "data/processed/pbb_eoy_1718_thru_",
     ay_1,
     "_campus_bdb_long.csv"
   )
-) %>%
+)) %>%
   left_join(
     .,
     places %>%
@@ -95,13 +132,13 @@ campus_long<- read_csv(
 #join ds and dr to campus_long - reference bl wb by demos
 
 #get emu long data
-emu_long<- read_csv(
+emu_long<- read_csv(here::here(
   paste0(
-    "../data/processed/pbb_eoy_1718_thru_",
+    "data/processed/pbb_eoy_1718_thru_",
     ay_1,
     "_emu_bdb_long.csv"
   )
-) %>%
+)) %>%
   left_join(
     .,
     places %>%
@@ -119,12 +156,12 @@ emu_long<- read_csv(
   )
 
 #compute n resps > 3 (method was split across 2 maps in 1718 and 1819. students were instructed to select 3 but some selected more)
-too_many_resps_emu<- read_csv(
+too_many_resps_emu<- read_csv(here::here(
   paste0(
-    "../data/processed/pbb_eoy_1718_thru_",
+    "data/processed/pbb_eoy_1718_thru_",
     ay_1,
     "_emu_bdb_wide.csv"
-  ),
+  )),
   guess_max = 1900
 ) %>%
   filter(
@@ -999,13 +1036,13 @@ ns_cam_us_ug_ay1617<- data.frame(
 )
 
 #ay1617
-map_cam_b_us_ug_ay1617<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1617.png"
+map_cam_b_us_ug_ay1617<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1617.png")
 )
 
 #ay1617
-map_cam_db_us_ug_ay1617<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1617.png"
+map_cam_db_us_ug_ay1617<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1617.png")
 )
 
 #ay1718
@@ -1081,8 +1118,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1718<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1718.png"
+map_cam_b_us_ug_ay1718<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1718.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 15, "yellow", "+323+180") %>% #emu
   count_lab_fun(pl_agg_lab_vec[3], 15, "blue", "+334+244") %>% #src
@@ -1108,11 +1145,11 @@ map_cam_b_us_ug_ay1718<- image_read(
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/b_map_emu1_us_ug_ay1718.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu1_us_ug_ay1718.png")
   ),
-  image_read(
-    "../images/pbb/b_map_emu2_us_ug_ay1718.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu2_us_ug_ay1718.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -1133,8 +1170,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1718<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1718.png"
+map_cam_db_us_ug_ay1718<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1718.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 15, "yellow", "+335+244") %>% #src
   count_lab_fun(pl_lab_vec[5], 15, "yellow", "+237+141") %>% #lillis
@@ -1155,11 +1192,11 @@ map_cam_db_us_ug_ay1718<- image_read(
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/db_map_emu1_us_ug_ay1718.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu1_us_ug_ay1718.png")
   ),
-  image_read(
-    "../images/pbb/db_map_emu2_us_ug_ay1718.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu2_us_ug_ay1718.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -1252,8 +1289,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1819<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1819.png"
+map_cam_b_us_ug_ay1819<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1819.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 22, "yellow", "+466+265") %>% #emu
   count_lab_fun(pl_agg_lab_vec[4], 22, "blue", "+488+388") %>% #src
@@ -1281,11 +1318,11 @@ map_cam_b_us_ug_ay1819<- image_read(
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/b_map_emu1_us_ug_ay1819.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu1_us_ug_ay1819.png")
   ),
-  image_read(
-    "../images/pbb/b_map_emu2_us_ug_ay1819.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu2_us_ug_ay1819.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -1309,8 +1346,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1819<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1819.png"
+map_cam_db_us_ug_ay1819<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1819.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[4], 22, "yellow", "+488+388") %>% #src
   count_lab_fun(pl_agg_lab_vec[6], 22, "blue", "+291+191") %>% #lillis comp
@@ -1332,11 +1369,11 @@ map_cam_db_us_ug_ay1819<- image_read(
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/db_map_emu1_us_ug_ay1819.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu1_us_ug_ay1819.png")
   ),
-  image_read(
-    "../images/pbb/db_map_emu2_us_ug_ay1819.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu2_us_ug_ay1819.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -1429,8 +1466,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1920<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1920.png"
+map_cam_b_us_ug_ay1920<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1920.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+460+274") %>% #emu
   count_lab_fun(pl_agg_lab_vec[3], 18, "yellow", "+484+394") %>% #src
@@ -1461,8 +1498,8 @@ map_cam_b_us_ug_ay1920<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay1920<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay1920.png"
+map_emu_b_us_ug_ay1920<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay1920.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+290+420") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 18, "yellow", "+315+180") %>% #green
@@ -1486,8 +1523,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1920<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1920.png"
+map_cam_db_us_ug_ay1920<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1920.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 18, "yellow", "+486+394") %>% #src
   count_lab_fun(pl_agg_lab_vec[7], 18, "yellow", "+284+196") %>% #lillis comp
@@ -1512,8 +1549,8 @@ map_cam_db_us_ug_ay1920<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay1920<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay1920.png"
+map_emu_db_us_ug_ay1920<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay1920.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+293+416") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 18, "yellow", "+403+499")#courtyard
@@ -1603,8 +1640,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay2122<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay2122.png"
+map_cam_b_us_ug_ay2122<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay2122.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+458+272") %>% #emu
   count_lab_fun(pl_agg_lab_vec[3], 21, "yellow", "+485+391") %>% #src
@@ -1636,8 +1673,8 @@ map_cam_b_us_ug_ay2122<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay2122<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay2122.png"
+map_emu_b_us_ug_ay2122<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay2122.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+287+416") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+309+179") %>% #green
@@ -1660,8 +1697,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay2122<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay2122.png"
+map_cam_db_us_ug_ay2122<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay2122.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 21, "yellow", "+484+393") %>% #src
   count_lab_fun(pl_agg_lab_vec[6], 21, "yellow", "+283+195") %>% #lillis comp
@@ -1684,8 +1721,8 @@ map_cam_db_us_ug_ay2122<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay2122<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay2122.png"
+map_emu_db_us_ug_ay2122<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay2122.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+293+416") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 21, "blue", "+398+494") #courtyard
@@ -1777,8 +1814,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1819_c1516<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1819_c1516.png"
+map_cam_b_us_ug_ay1819_c1516<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1819_c1516.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 22, "yellow", "+470+263") %>% #emu
   count_lab_fun(pl_agg_lab_vec[2], 22, "blue", "+497+384") %>% #src
@@ -1789,11 +1826,11 @@ map_cam_b_us_ug_ay1819_c1516<- image_read(
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/b_map_emu1_us_ug_ay1819_c1516.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu1_us_ug_ay1819_c1516.png")
   ),
-  image_read(
-    "../images/pbb/b_map_emu2_us_ug_ay1819_c1516.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu2_us_ug_ay1819_c1516.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -1806,8 +1843,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1819_c1516<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1819_c1516.png"
+map_cam_db_us_ug_ay1819_c1516<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1819_c1516.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[1], 22, "blue", "+496+387") %>% #src
   count_lab_fun(pl_agg_lab_vec[2], 22, "blue", "+300+190") %>% #lillis comp
@@ -1817,11 +1854,11 @@ map_cam_db_us_ug_ay1819_c1516<- image_read(
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/db_map_emu1_us_ug_ay1819_c1516.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu1_us_ug_ay1819_c1516.png")
   ),
-  image_read(
-    "../images/pbb/db_map_emu2_us_ug_ay1819_c1516.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu2_us_ug_ay1819_c1516.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -1915,8 +1952,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1819_c1617<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1819_c1617.png"
+map_cam_b_us_ug_ay1819_c1617<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1819_c1617.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 22, "yellow", "+473+264") %>% #emu
   count_lab_fun(pl_lab_vec[2], 22, "blue", "+295+363") %>% #library
@@ -1929,11 +1966,11 @@ map_cam_b_us_ug_ay1819_c1617<- image_read(
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/b_map_emu1_us_ug_ay1819_c1617.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu1_us_ug_ay1819_c1617.png")
   ),
-  image_read(
-    "../images/pbb/b_map_emu2_us_ug_ay1819_c1617.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu2_us_ug_ay1819_c1617.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -1946,8 +1983,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1819_c1617<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1819_c1617.png"
+map_cam_db_us_ug_ay1819_c1617<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1819_c1617.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[2], 22, "blue", "+300+191") %>% #lillis comp
   count_lab_fun(pl_agg_lab_vec[3], 22, "blue", "+511+184") %>% #lokey comp
@@ -1959,11 +1996,11 @@ map_cam_db_us_ug_ay1819_c1617<- image_read(
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/db_map_emu1_us_ug_ay1819_c1617.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu1_us_ug_ay1819_c1617.png")
   ),
-  image_read(
-    "../images/pbb/db_map_emu2_us_ug_ay1819_c1617.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu2_us_ug_ay1819_c1617.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -2057,8 +2094,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1819_c1718<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1819_c1718.png"
+map_cam_b_us_ug_ay1819_c1718<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1819_c1718.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 22, "yellow", "+471+266") %>% #emu
   count_lab_fun(pl_lab_vec[2], 22, "blue", "+296+362") %>% #library
@@ -2070,11 +2107,11 @@ map_cam_b_us_ug_ay1819_c1718<- image_read(
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/b_map_emu1_us_ug_ay1819_c1718.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu1_us_ug_ay1819_c1718.png")
   ),
-  image_read(
-    "../images/pbb/b_map_emu2_us_ug_ay1819_c1718.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu2_us_ug_ay1819_c1718.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -2087,8 +2124,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1819_c1718<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1819_c1718.png"
+map_cam_db_us_ug_ay1819_c1718<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1819_c1718.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[2], 22, "yellow", "+498+388") %>% #src
   count_lab_fun(pl_agg_lab_vec[3], 22, "yellow", "+298+189") %>% #lillis comp
@@ -2099,11 +2136,11 @@ map_cam_db_us_ug_ay1819_c1718<- image_read(
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/db_map_emu1_us_ug_ay1819_c1718.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu1_us_ug_ay1819_c1718.png")
   ),
-  image_read(
-    "../images/pbb/db_map_emu2_us_ug_ay1819_c1718.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu2_us_ug_ay1819_c1718.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -2196,8 +2233,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1819_c1819<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1819_c1819.png"
+map_cam_b_us_ug_ay1819_c1819<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1819_c1819.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 22, "yellow", "+465+266") %>% #emu
   count_lab_fun(pl_agg_lab_vec[3], 22, "yellow", "+496+387") %>% #src
@@ -2217,11 +2254,11 @@ map_cam_b_us_ug_ay1819_c1819<- image_read(
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/b_map_emu1_us_ug_ay1819_c1819.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu1_us_ug_ay1819_c1819.png")
   ),
-  image_read(
-    "../images/pbb/b_map_emu2_us_ug_ay1819_c1819.png"
+  image_read(here::here(
+    "images/pbb/b_map_emu2_us_ug_ay1819_c1819.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -2239,8 +2276,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1819_c1819<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1819_c1819.png"
+map_cam_db_us_ug_ay1819_c1819<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1819_c1819.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 22, "yellow", "+496+387") %>% #src
   count_lab_fun(pl_agg_lab_vec[6], 22, "blue", "+299+189") %>% #lillis comp
@@ -2258,11 +2295,11 @@ map_cam_db_us_ug_ay1819_c1819<- image_read(
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
 maps<- c(
-  image_read(
-    "../images/pbb/db_map_emu1_us_ug_ay1819_c1819.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu1_us_ug_ay1819_c1819.png")
   ),
-  image_read(
-    "../images/pbb/db_map_emu2_us_ug_ay1819_c1819.png"
+  image_read(here::here(
+    "images/pbb/db_map_emu2_us_ug_ay1819_c1819.png")
   )
 ) %>%
   image_scale(., "1280x1170")
@@ -2354,8 +2391,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1920_c1617<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1920_c1617.png"
+map_cam_b_us_ug_ay1920_c1617<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1920_c1617.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+465+274") %>% #emu
   count_lab_fun(pl_agg_lab_vec[2], 18, "yellow", "+490+393") %>% #src
@@ -2365,8 +2402,8 @@ map_cam_b_us_ug_ay1920_c1617<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay1920_c1617<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay1920_c1617.png"
+map_emu_b_us_ug_ay1920_c1617<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay1920_c1617.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+295+420") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 18, "yellow", "+321+180") #green
@@ -2376,8 +2413,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1920_c1617<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1920_c1617.png"
+map_cam_db_us_ug_ay1920_c1617<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1920_c1617.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 18, "yellow", "+291+195") %>% #lillis comp
   count_lab_fun(pl_agg_lab_vec[2], 18, "blue", "+509+189") %>% #lokey comp
@@ -2385,8 +2422,8 @@ map_cam_db_us_ug_ay1920_c1617<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay1920_c1617<- image_read(
-  "../images/pbb/db_map_emu_us_ug_ay1920_c1617.png"
+map_emu_db_us_ug_ay1920_c1617<- image_read(here::here(
+  "images/pbb/db_map_emu_us_ug_ay1920_c1617.png")
 )
 #insufficient data 
 
@@ -2476,8 +2513,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1920_c1718<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1920_c1718.png"
+map_cam_b_us_ug_ay1920_c1718<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1920_c1718.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+465+274") %>% #emu
   count_lab_fun(pl_lab_vec[2], 18, "blue", "+284+371") %>% #library
@@ -2486,8 +2523,8 @@ map_cam_b_us_ug_ay1920_c1718<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay1920_c1718<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay1920_c1718.png"
+map_emu_b_us_ug_ay1920_c1718<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay1920_c1718.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+294+419") #fishbowl
 
@@ -2496,16 +2533,16 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1920_c1718<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1920_c1718.png"
+map_cam_db_us_ug_ay1920_c1718<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1920_c1718.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[2], 18, "blue", "+290+197") %>% #lillis comp
   count_lab_fun(pl_agg_lab_vec[1], 18, "blue", "+492+392") #src
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay1920_c1718<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay1920_c1718.png"
+map_emu_db_us_ug_ay1920_c1718<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay1920_c1718.png")
   )
 #insufficient data
 
@@ -2595,8 +2632,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1920_c1819<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1920_c1819.png"
+map_cam_b_us_ug_ay1920_c1819<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1920_c1819.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+459+274") %>% #emu
   count_lab_fun(pl_agg_lab_vec[3], 18, "yellow", "+491+394") %>% #src
@@ -2610,8 +2647,8 @@ map_cam_b_us_ug_ay1920_c1819<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay1920_c1819<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay1920_c1819.png"
+map_emu_b_us_ug_ay1920_c1819<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay1920_c1819.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+293+419") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 18, "yellow", "+320+180") %>% #green
@@ -2624,8 +2661,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1920_c1819<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1920_c1819.png"
+map_cam_db_us_ug_ay1920_c1819<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1920_c1819.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 18, "yellow", "+491+394") %>% #src
   count_lab_fun(pl_agg_lab_vec[6], 18, "yellow", "+290+197") %>% #lillis comp
@@ -2640,8 +2677,8 @@ map_cam_db_us_ug_ay1920_c1819<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay1920_c1819<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay1920_c1819.png"
+map_emu_db_us_ug_ay1920_c1819<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay1920_c1819.png")
   )
 #insufficient data
 
@@ -2730,8 +2767,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay1920_c1920<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay1920_c1920.png"
+map_cam_b_us_ug_ay1920_c1920<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay1920_c1920.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+459+274") %>% #emu
   count_lab_fun(pl_agg_lab_vec[3], 18, "yellow", "+484+394") %>% #src
@@ -2753,8 +2790,8 @@ map_cam_b_us_ug_ay1920_c1920<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay1920_c1920<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay1920_c1920.png"
+map_emu_b_us_ug_ay1920_c1920<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay1920_c1920.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+297+420") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 18, "yellow", "+321+181") %>% #green
@@ -2772,8 +2809,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay1920_c1920<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay1920_c1920.png"
+map_cam_db_us_ug_ay1920_c1920<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay1920_c1920.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 18, "yellow", "+491+395") %>% #src
   count_lab_fun(pl_agg_lab_vec[7], 18, "yellow", "+291+196") %>% #lillis comp
@@ -2789,8 +2826,8 @@ map_cam_db_us_ug_ay1920_c1920<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay1920_c1920<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay1920_c1920.png"
+map_emu_db_us_ug_ay1920_c1920<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay1920_c1920.png")
   )
 #insufficient data
 
@@ -2879,8 +2916,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay2122_c1819<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay2122_c1819.png"
+map_cam_b_us_ug_ay2122_c1819<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay2122_c1819.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+459+270") %>% #emu
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+280+364") %>% #library
@@ -2890,8 +2927,8 @@ map_cam_b_us_ug_ay2122_c1819<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay2122_c1819<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay2122_c1819.png"
+map_emu_b_us_ug_ay2122_c1819<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay2122_c1819.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+293+416") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+317+179") #green
@@ -2901,8 +2938,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay2122_c1819<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay2122_c1819.png"
+map_cam_db_us_ug_ay2122_c1819<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay2122_c1819.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[1], 21, "yellow", "+488+392") %>% #src
   count_lab_fun(pl_agg_lab_vec[3], 21, "yellow", "+288+195") %>% #lillis comp
@@ -2911,8 +2948,8 @@ map_cam_db_us_ug_ay2122_c1819<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay2122_c1819<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay2122_c1819.png"
+map_emu_db_us_ug_ay2122_c1819<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay2122_c1819.png")
   )
 #insufficient data
 
@@ -3002,8 +3039,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay2122_c1920<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay2122_c1920.png"
+map_cam_b_us_ug_ay2122_c1920<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay2122_c1920.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+452+270") %>% #emu
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+280+364") %>% #library
@@ -3014,8 +3051,8 @@ map_cam_b_us_ug_ay2122_c1920<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay2122_c1920<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay2122_c1920.png"
+map_emu_b_us_ug_ay2122_c1920<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay2122_c1920.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+293+416") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+317+179") %>% #green
@@ -3026,8 +3063,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay2122_c1920<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay2122_c1920.png"
+map_cam_db_us_ug_ay2122_c1920<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay2122_c1920.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[1], 21, "yellow", "+488+391") %>% #src
   count_lab_fun(pl_agg_lab_vec[3], 21, "yellow", "+289+196") %>% #lillis comp
@@ -3038,8 +3075,8 @@ map_cam_db_us_ug_ay2122_c1920<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay2122_c1920<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay2122_c1920.png"
+map_emu_db_us_ug_ay2122_c1920<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay2122_c1920.png")
   )
 #insufficient data
 
@@ -3129,8 +3166,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay2122_c2021<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay2122_c2021.png"
+map_cam_b_us_ug_ay2122_c2021<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay2122_c2021.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+464+272") %>% #emu
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+284+368") %>% #library
@@ -3141,8 +3178,8 @@ map_cam_b_us_ug_ay2122_c2021<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay2122_c2021<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay2122_c2021.png"
+map_emu_b_us_ug_ay2122_c2021<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay2122_c2021.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+293+416") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+317+179") #green
@@ -3152,8 +3189,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay2122_c2021<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay2122_c2021.png"
+map_cam_db_us_ug_ay2122_c2021<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay2122_c2021.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[2], 21, "yellow", "+489+393") %>% #src
   count_lab_fun(pl_agg_lab_vec[6], 21, "yellow", "+289+195") %>% #lillis comp
@@ -3165,8 +3202,8 @@ map_cam_db_us_ug_ay2122_c2021<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay2122_c2021<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay2122_c2021.png"
+map_emu_db_us_ug_ay2122_c2021<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay2122_c2021.png")
   ) 
 #insufficient data
 
@@ -3256,8 +3293,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_us_ug_ay2122_c2122<- image_read(
-  "../images/pbb/b_map_cam_us_ug_ay2122_c2122.png"
+map_cam_b_us_ug_ay2122_c2122<- image_read(here::here(
+  "images/pbb/b_map_cam_us_ug_ay2122_c2122.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+458+272") %>% #emu
   count_lab_fun(pl_agg_lab_vec[3], 21, "yellow", "+483+392") %>% #src
@@ -3276,8 +3313,8 @@ map_cam_b_us_ug_ay2122_c2122<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_us_ug_ay2122_c2122<- image_read(
-    "../images/pbb/b_map_emu_us_ug_ay2122_c2122.png"
+map_emu_b_us_ug_ay2122_c2122<- image_read(here::here(
+    "images/pbb/b_map_emu_us_ug_ay2122_c2122.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+293+416") %>% #fishbowl
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+316+179") %>% #green
@@ -3289,8 +3326,8 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_us_ug_ay2122_c2122<- image_read(
-  "../images/pbb/db_map_cam_us_ug_ay2122_c2122.png"
+map_cam_db_us_ug_ay2122_c2122<- image_read(here::here(
+  "images/pbb/db_map_cam_us_ug_ay2122_c2122.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[3], 21, "yellow", "+481+392") %>% #src
   count_lab_fun(pl_agg_lab_vec[6], 21, "yellow", "+288+196") %>% #lillis comp
@@ -3304,8 +3341,8 @@ map_cam_db_us_ug_ay2122_c2122<- image_read(
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_us_ug_ay2122_c2122<- image_read(
-    "../images/pbb/db_map_emu_us_ug_ay2122_c2122.png"
+map_emu_db_us_ug_ay2122_c2122<- image_read(here::here(
+    "images/pbb/db_map_emu_us_ug_ay2122_c2122.png")
   )
 #insufficient data
 
@@ -3394,8 +3431,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_i_ug_ay1920<- image_read(
-  "../images/pbb/b_map_cam_i_ug_ay1920.png"
+map_cam_b_i_ug_ay1920<- image_read(here::here(
+  "images/pbb/b_map_cam_i_ug_ay1920.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 21, "yellow", "+462+270") %>% #emu
   count_lab_fun(pl_lab_vec[2], 21, "yellow", "+284+369") %>% #library
@@ -3404,8 +3441,8 @@ map_cam_b_i_ug_ay1920<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_i_ug_ay1920<- image_read(
-    "../images/pbb/b_map_emu_i_ug_ay1920.png"
+map_emu_b_i_ug_ay1920<- image_read(here::here(
+    "images/pbb/b_map_emu_i_ug_ay1920.png")
   ) %>%
   count_lab_fun(pl_lab_vec[1], 18, "yellow", "+496+130") #mills
 
@@ -3414,15 +3451,15 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_i_ug_ay1920<- image_read(
-  "../images/pbb/db_map_cam_i_ug_ay1920.png"
+map_cam_db_i_ug_ay1920<- image_read(here::here(
+  "images/pbb/db_map_cam_i_ug_ay1920.png")
 )
 #insufficient data
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_i_ug_ay1920<- image_read(
-  "../images/pbb/db_map_emu_i_ug_ay1920.png"
+map_emu_db_i_ug_ay1920<- image_read(here::here(
+  "images/pbb/db_map_emu_i_ug_ay1920.png")
 )
 #insufficient data
 
@@ -3512,30 +3549,30 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_i_ay2122<- image_read(
-  "../images/pbb/b_map_cam_i_ay2122.png"
+map_cam_b_i_ay2122<- image_read(here::here(
+  "images/pbb/b_map_cam_i_ay2122.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 24, "yellow", "+462+270") #emu
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_i_ay2122<- image_read(
-  "../images/pbb/b_map_emu_i_ay2122.png"
+map_emu_b_i_ay2122<- image_read(here::here(
+  "images/pbb/b_map_emu_i_ay2122.png")
 )
 #insufficient data
 
 #don't belong map
 pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
-map_cam_db_i_ay2122<- image_read(
-  "../images/pbb/db_map_cam_i_ay2122.png"
+map_cam_db_i_ay2122<- image_read(here::here(
+  "images/pbb/db_map_cam_i_ay2122.png")
 )
 #insufficient data
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_i_ay2122<- image_read(
-  "../images/pbb/db_map_emu_i_ay2122.png"
+map_emu_db_i_ay2122<- image_read(here::here(
+  "images/pbb/db_map_emu_i_ay2122.png")
 )
 #insufficient data
 
@@ -3627,8 +3664,8 @@ pl_lab_vec<- pl_cam$n_b[pl_cam$n_b > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_b[pl_cam_agg$n_b > 19]
 
-map_cam_b_gr_ay2122<- image_read(
-  "../images/pbb/b_map_cam_gr_ay2122.png"
+map_cam_b_gr_ay2122<- image_read(here::here(
+  "images/pbb/b_map_cam_gr_ay2122.png")
 ) %>%
   count_lab_fun(pl_lab_vec[1], 24, "yellow", "+278+363") %>% #library
   count_lab_fun(pl_lab_vec[2], 24, "yellow", "+455+268") %>% #emu
@@ -3638,8 +3675,8 @@ map_cam_b_gr_ay2122<- image_read(
 
 pl_lab_vec<- pl_emu$n_b[pl_emu$n_b > 19]
 
-map_emu_b_gr_ay2122<- image_read(
-  "../images/pbb/b_map_emu_gr_ay2122.png"
+map_emu_b_gr_ay2122<- image_read(here::here(
+  "images/pbb/b_map_emu_gr_ay2122.png")
 )
 #insufficient data
 
@@ -3648,16 +3685,16 @@ pl_lab_vec<- pl_cam$n_db[pl_cam$n_db > 19]
 
 pl_agg_lab_vec<- pl_cam_agg$n_db[pl_cam_agg$n_db > 19]
 
-map_cam_db_gr_ay2122<- image_read(
-  "../images/pbb/db_map_cam_gr_ay2122.png"
+map_cam_db_gr_ay2122<- image_read(here::here(
+  "images/pbb/db_map_cam_gr_ay2122.png")
 ) %>%
   count_lab_fun(pl_agg_lab_vec[2], 24, "yellow", "+486+391") %>% #src
   count_lab_fun(pl_lab_vec[1], 24, "yellow", "+457+270") #emu
 
 pl_lab_vec<- pl_emu$n_db[pl_emu$n_db > 19]
 
-map_emu_db_gr_ay2122<- image_read(
-  "../images/pbb/db_map_emu_gr_ay2122.png"
+map_emu_db_gr_ay2122<- image_read(here::here(
+  "images/pbb/db_map_emu_gr_ay2122.png")
 )
 #insufficient data
 
