@@ -1,0 +1,21 @@
+# Supplemental Method {#supmeth}
+
+Forthcoming: detailed information about method development, procedure, and analysis
+
+For now, see Table and Figure notes, except for:
+
+```{r, emotion wheel, include = FALSE}
+library(tidyverse)
+emo_wheel<- image_read("../images/Plutchik-wheel.png") %>%
+  image_background("#A2AAAD")
+  
+```
+## Figure 1. Plutchik's Wheel of Emotions {#f1}
+
+```{r, out.width = "100%", echo = FALSE, warning = FALSE}
+emo_wheel
+```
+
+Note: Image retrieved from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Plutchik-wheel.svg){target="_blank"}.
+
+<br>

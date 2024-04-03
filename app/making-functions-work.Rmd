@@ -1,0 +1,126 @@
+---
+title: "Making Functions Work"
+author: "Anwesha Guha"
+date: "2024-03-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Testing doc
+
+```{r}
+emo_bar_fun<- function(dat, p, p_lab, t, brk, lmt, cp, b_cp, e_cp, tc, tc_y) {
+  plot<- dat %>%
+    filter(!!sym(p) %in% p_lab) %>%
+    count(sentiment) %>%
+    filter(
+      sentiment != "positive" &
+        sentiment != "negative"
+    ) %>%
+    mutate(
+      perc = n/sum(n)*100,
+      sentiment = factor(sentiment),
+      sentiment = fct_reorder(sentiment, perc)
+    ) %>%
+    ggplot(
+      .,
+      aes(
+        x = sentiment,
+        y = perc,
+        fill = sentiment
+      )
+    ) +
+    geom_bar(
+      stat = "identity",
+      position = "dodge"
+    ) +
+    labs(
+      title = t,
+      x = "",
+      y = "Percentage"
+    ) +
+    coord_flip() +
+    scale_y_continuous(
+      breaks = brk,
+      limits = lmt
+    ) +
+    scale_fill_viridis_d(
+      option = cp,
+      begin = b_cp,
+      end = e_cp
+    ) +
+    geom_text(
+      aes(label = sprintf("%0.1f", perc)),
+      hjust = -0.5,
+      size = 5.5,
+      color = tc
+    ) +
+    guides(fill = "none") +
+    theme(
+      panel.background = element_rect(fill = "#30313A", size = 1),
+      plot.background = element_rect(
+        color = "#30313A",
+        fill = "#30313A"
+      ),
+      plot.margin = margin(0.5, 0, 0.5, 0, unit = "cm"),
+      axis.ticks.y = element_blank(),
+      panel.grid = element_blank(),
+      plot.title = element_text(
+        color = tc,
+        size = 19,
+        hjust = 0.5
+      ),
+      axis.text.x = element_text(
+        color = tc,
+        size = 16
+      ),
+      axis.text.y = element_text(
+        color = tc_y, #throws "Warning message: Vectorized input to `element_text()` is not officially supported. Results may be unexpected or may change in future versions of ggplot2." lol :-D oh well...gonna do it anyway 'cause it's pretty slick 
+        size = 16
+      ),
+      axis.title = element_text(
+        color = tc, size = 17
+      )
+    )
+  return(plot)
+}
+```
+
+
+Emotions
+
+```{r}
+emo_bar_fun(
+  b_emo,
+  vnm_emo[11],
+  "Multicultural Center",
+  "Belong",
+  c(0, 10, 20, 30, 40, 50),
+  c(0, 50),
+  "rocket",
+  0.833,
+  0.5,
+  "#F6AA82",
+  rocket(7, begin = 0.833, end = 0.5)
+) +
+  ggplot2::annotate(#NRC masks ggplot2::annotate()
+    "text",
+    x = 2.8,
+    y = 30,
+    size = 5,
+    label = "0 words classified as",
+    color = "#F6AA82"
+  ) +
+  ggplot2::annotate(
+    "text",
+    x = 2.4,
+    y = 30,
+    size = 5,
+    label = "anger",
+    color = "#F6AA82"
+  )
+```
+

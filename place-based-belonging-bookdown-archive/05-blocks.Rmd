@@ -1,0 +1,92 @@
+# Where for Whom? {#whom}
+
+Forthcoming: inclusiveness of popular places by demographics
+
+<br>
+
+```{r coocurrence, include = FALSE}
+
+#get wide campus data (mostly for edges stuff)
+#campus_wide<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_campus_bdb_wide.csv"
+  #)
+#) %>%
+  #within(cohort[is.na(cohort)]<- "no cohort")
+
+#get campus edges data
+#campus_edges<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_campus_edges.csv"
+  #)
+#)
+
+#get emu_wide data (mostly for edges stuff)
+#emu_wide<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_emu_bdb_wide.csv"
+  #),
+  #guess_max = 1900
+#) %>%
+  #within(cohort[is.na(cohort)]<- "no cohort")
+
+#get emu edges data
+#emu_edges<- read_csv(
+  #paste0(
+    #"../data/processed/pbb_eoy_1718_thru_",
+    #ay_1,
+    #"_emu_edges.csv"
+  #)
+#)
+
+#src_b_dbe<- left_join(
+ # long %>%
+  #  filter(
+   #   ayear == 1718 &
+    #    sent == "Belong" &
+     #   place == "SRC"
+    #) %>%
+    #rename(b0 = place) %>%
+    #select(id, b0) %>%
+    #arrange(desc(id)),
+  #wide %>%
+   # filter(
+    #  ayear == 1718 &
+     #   sent == "Don't Belong"
+    #) %>%
+     # select(id, db1:db3),
+  #by = "id"
+#) %>%
+ # pivot_longer(
+  #  cols = b0:db3,
+   # names_to = "place_num",
+    #values_to = "place"
+  #) %>%
+  #select(-place_num) %>%
+  #cooccurrence(
+   # group = "id",
+    #term = "place"
+  #) %>%
+  #data.frame() %>%
+  #rename(
+   # place_1 = term1,
+    #place_2 = term2
+  #) %>%
+  #filter(
+   # place_1 == "SRC" |
+    #  place_2 == "SRC"
+  #)
+
+#src_same<- src_b_dbe %>%
+ # filter(
+  #  place_1 == "SRC" &
+   #   place_2 == "SRC"
+  #)
+
+```
