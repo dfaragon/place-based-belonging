@@ -6,10 +6,23 @@ title: "Why There? Wordnets & Wordclouds"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## What we need here:
+
+- there will be four visuals total shown at any given time
+- top two visuals can be "belong", the wordcloud and wordnet
+- bottom two visuals can be "don't belong", the wordcloud and wordnet
+- extract image if wordcloud hovering does not work
+
 ## Brian's Code
 ```{r}
 
 ```
+
+## Standardized
+```{r}
+
+```
+
 
 ## UI draft
 ```{r}

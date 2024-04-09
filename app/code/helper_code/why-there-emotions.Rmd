@@ -6,10 +6,22 @@ title: "Why There? Emotions"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## What we need here:
+
+- create bar graphs for each of the filters
+- stack "belong" and "don't belong" graphs
+- Add in Plutchik’s Wheel of Emotions to this page on left-hand or right-hand side with supplementary description/info under it (this should be an .md file)
+
 ## Brian's Code
 ```{r}
 
 ```
+
+## Standardized
+```{r}
+
+```
+
 
 ## UI draft
 ```{r}

@@ -6,7 +6,23 @@ title: "Where?"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## What we need here:
+
+- tables under "Where?" tab
+- omit maps (these are in their own section)
+- campus inclusiveness heatmap
+- emu inclusiveness heatmap
+
 ## Brian's Code
+```{r}
+
+```
+
+## Standardize
+```{r}
+
+```
+
 
 ## UI draft
 
