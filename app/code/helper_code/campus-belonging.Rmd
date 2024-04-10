@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 - campus maps, broken into "belong" on top and "don't belong" on bottom
 - filter apply to both maps
 - maps are already extracted in "maps" folder: i have the standardized code for this already created so let me know if you are doing this piece -anwesha
+- hover for text (see NPS example)
 
 ## Brian's Code
 ```{r}
