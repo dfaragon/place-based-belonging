@@ -34,7 +34,498 @@ knitr::opts_chunk$set(echo = TRUE)
 
 just droppped in some code below. this is just the outline and works when you load everything in as .RData, but we want to avoid that. but you can use as draft - anwesha
 
-For UI piece:
+### Standardized piece (probably can be condensed even more)
+```{r initial setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(viridis)
+library(reactable)
+library(htmltools)
+library(magick)
+library(treemapify)
+library(udpipe)
+library(tidytext)
+library(wordcloud2)
+library(igraph)
+library(ggraph)
+
+ay_1<- 2122 #CHANGE year (academic year format 1920 etc.)
+ay_2<- 2223 #CHANGE year (academic year format 1920 etc.)
+
+#function for big Ns that have , marks
+big_n<- function(x) {
+  prettyNum(x, big.mark = ",", scientific = F)
+}
+
+#stats that get 1 decimal like percentages
+stat_1<- function(x) {
+  formatC(x, format = "f", digits = 1)
+}
+
+#get place names
+places<- read_csv(
+  paste0(
+    "data/processed/pbb_eoy_1718_thru_",
+    ay_1,
+    "_places.csv"
+  )
+)
+
+waves<- c("Spring 2022, Spring 2020, Spring 2019, Spring 2018") #CHANGE add waves as more data come in
+
+
+#read data ####
+
+#get long campus data
+campus_long<- read_csv(
+  paste0(
+    "data/processed/pbb_eoy_1718_thru_",
+    ay_1,
+    "_campus_bdb_long.csv"
+  )
+) %>%
+  left_join(
+    .,
+    places %>%
+      filter(level == "campus"),
+    by = c("ayear", "place")
+  ) %>%
+  within(cohort[is.na(cohort)]<- "no cohort") %>% #a trick to let me do the same function to data that are either cohort-specific or cohort-irrelevant
+  within(
+    full_place[
+      full_place == "Thompsons"
+    ]<- "Thompson's University Center"
+  )
+
+#get survey demos ####
+#need to get gi and so from eoy when available, otherwise bl
+#need to get others from bl data
+
+#get recs demos ####
+#need to add eoy22 who don't have bl to a set with bl
+
+#combine above for doing analyses by demos ####
+#join ds and dr to campus_long - reference bl wb by demos
+
+#get emu long data
+emu_long<- read_csv(
+  paste0(
+    "data/processed/pbb_eoy_1718_thru_",
+    ay_1,
+    "_emu_bdb_long.csv"
+  )
+) %>%
+  left_join(
+    .,
+    places %>%
+      filter(level == "emu"),
+    by = c("ayear", "place")
+  ) %>%
+  within(cohort[is.na(cohort)]<- "no cohort") %>%
+  filter(
+    place_num %in% c("b1", "b2", "b3", "db1", "db2", "db3")
+  ) %>%
+  within(
+    full_place[
+      full_place == "Craft Center - Outdoor"
+    ]<- "Craft Center"
+  )
+
+#compute n resps > 3 (method was split across 2 maps in 1718 and 1819. students were instructed to select 3 but some selected more)
+too_many_resps_emu<- read_csv(
+  paste0(
+    "data/processed/pbb_eoy_1718_thru_",
+    ay_1,
+    "_emu_bdb_wide.csv"
+  ),
+  guess_max = 1900
+) %>%
+  filter(
+    !is.na(b4) |
+      !is.na(db4)
+  ) %>%
+  group_by(ayear) %>%
+  summarise(n = sum(!is.na(id)))
+
+#combine above for doing analyses by demos ####
+#join ds and dr to emu_long - reference bl wb by demos
+
+
+#function for getting place counts
+place_fun<- function(dat, s_vec, c_vec, gt, lt, p, by_p, n_dat) {
+  df<- full_join(
+    dat  %>%
+      within(
+        full_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      filter(
+        sample %in% c(s_vec) &
+          cohort %in% c(c_vec) &
+          ayear > gt &
+          ayear < lt &
+          sent == "Belong"
+      ) %>%
+      count(!!sym(p)) %>%
+      arrange(desc(n)),
+    dat %>%
+      within(
+        full_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      filter(
+        sample %in% c(s_vec) &
+          cohort %in% c(c_vec) &
+          ayear > gt &
+          ayear < lt &
+          sent == "Don't Belong"
+      ) %>%
+      count(!!sym(p)) %>%
+      arrange(desc(n)),
+    by = by_p
+  ) %>%
+    filter(!!sym(p) != "No Place") %>%
+    rename(
+      n_b = n.x,
+      n_db = n.y
+    ) %>%
+    within(n_b[is.na(n_b)]<- 0) %>%
+    within(n_db[is.na(n_db)]<- 0) %>%
+    mutate(
+      perc_click_b = n_b/sum(n_b)*100,
+      perc_click_db = n_db/sum(n_db)*100,
+      perc_stud_b = n_b/sum(n_dat$n_b)*100,
+      perc_stud_db = n_db/sum(n_dat$n_db)*100,
+      incl = n_b/(n_b+n_db)*100
+    ) %>%
+    select(!!sym(p), incl, n_b, n_db, everything())
+  return(df)
+}
+
+#lt term in ns_fun, nw_fun, and place_fun for us undergrad overall and us undergrad by cohort sets
+lt_term<- 2223 #CHANGE increment term as ayears are added
+
+
+
+#make vectors for indexing ####
+vnm_long<- names(campus_long) #same as emu_long
+
+cohorts<- c(
+  "0102",
+  "0708",
+  "1011",
+  "1112",
+  "1415",
+  "1516",
+  "1617",
+  "1718",
+  "1819",
+  "1920",
+  "2021",
+  "2122",
+  "2223"
+  #CHANGE add cohorts as cohorts are added
+)
+
+classes<- c("Freshman", "Sophomore", "Junior", "Senior")
+
+noco<- "no cohort"
+
+vnm_pl<- c(
+  "full_place",
+  "incl",
+  "n_b",
+  "n_db",
+  "perc_click_b",
+  "perc_click_db",
+  "perc_stud_b",
+  "perc_stud_db"
+)
+
+#function for interactive datatables
+reactable_fun<- function() {
+  options(
+    reactable.theme = reactableTheme(
+      color = "hsl(233, 9%, 87%)",
+      backgroundColor = "hsl(233, 9%, 19%)",
+      borderColor = "hsl(233, 9%, 22%)",
+      stripedColor = "hsl(233, 12%, 22%)",
+      highlightColor = "hsl(233, 12%, 24%)",
+      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
+    )
+  )
+  rt<- bind_rows(
+    pl_cam %>%
+      left_join(
+        .,
+        places %>%
+          filter(level == "campus") %>%
+          select(full_place, agg_place),
+        by = "full_place"
+      ) %>%
+      distinct(full_place, .keep_all = T) %>%
+      mutate(
+        incl = incl / 100,
+        across(
+          perc_click_b:perc_stud_db, ~.x / 100
+        )
+      ) %>%
+      within(
+        full_place[
+          full_place == "Jordan Schnitzer Museum of Art"
+        ]<- "J. Schnitzer Museum of Art"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Thompson's University Center"
+        ]<- "Thompson's Univ Center"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Museum of Natural and Cultural History"
+        ]<- "Museum of Nat & Cult Hist"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Campus Planning and Facilities Management"
+        ]<- "Campus Plan & Facil Mgmt"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Jordan Schnitzer Museum of Art"
+        ]<- "J. Schnitzer Museum of Art"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Museum of Natural and Cultural History"
+        ]<- "Museum of Nat & Cult Hist"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Campus Planning and Facilities Management"
+        ]<- "Campus Plan & Facil Mgmt"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Student Recreation Complex"
+        ]<- "Student Rec Complex"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Thompson's University Center"
+        ]<- "Thompson's Univ Center"
+      ) %>%
+      within(
+        agg_place[
+          is.na(agg_place)
+        ]<- "Other/Out of Bounds"
+      ),
+    pl_emu %>%
+      left_join(
+        .,
+        places %>%
+          filter(level == "emu") %>%
+          select(full_place, agg_place),
+        by = "full_place"
+      ) %>%
+      distinct(full_place, .keep_all = T) %>%
+      mutate(
+        incl = incl / 100,
+        across(
+          perc_click_b:perc_stud_db, ~.x / 100
+        ),
+        agg_place = "EMU-Specific Places"
+      ) %>%
+      within(
+        full_place[
+          full_place == "ASUO Student Governance Center"
+        ]<- "ASUO Stdnt Gov Cntr"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Bartolotti's Pizza Bistro"
+        ]<- "Bartolotti's Pizza"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Center for Student Involvement Resource Center"
+        ]<- "CSI Resource Center"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Collegiate Recover Center"
+        ]<- "Collegiate Recovery Cntr"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Falling Sky Pizzeria and Public House"
+        ]<- "Falling Sky"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Fraternity and Sorority Life"
+        ]<- "Fraternity & Sorority Life"
+      ) %>%
+      within(
+        full_place[
+          full_place == "International Student Association"
+        ]<- "Intl Stdnt Assoc"
+      ) %>%
+      within(
+        full_place[
+          full_place == "International Student Groups"
+        ]<- "Intl Stdnt Groups"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Legal Services Student Advocacy"
+        ]<- "Legal Srvc Stdnt Advocacy"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Nontraditional Student Union"
+        ]<- "Nontrad Stdnt Union"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Scheduling and Event Services"
+        ]<- "Sched & Event Services"
+      ) %>%
+      within(
+        full_place[
+          full_place == "Student Sustainability Center"
+        ]<- "Stdnt Sustainability Cntr"
+      )
+  ) %>%
+    reactable(
+      .,
+      groupBy = "agg_place",
+      showPageSizeOptions = T,
+      paginateSubRows = T,
+      defaultSorted = c("agg_place", "full_place"),
+      sortable = T,
+      showSortable = T,
+      striped = T,
+      highlight = T,
+      bordered = T,
+      defaultColDef = colDef(
+        vAlign = "center",
+        headerVAlign = "bottom"
+      ),
+      columns = list(
+        agg_place = colDef(
+          name = "Aggregated Place",
+          filterable = T,
+          align = "left",
+          minWidth = 240
+        ),
+        full_place = colDef(
+          name = "Place",
+          align = "left",
+          minWidth = 215
+        ),
+        n_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Belong"
+            }'
+          )
+        ),
+        n_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Don\'t" +
+              "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        incl = colDef(
+          aggregate = "mean",
+          name = "Inclusive",
+          align = "center",
+          format = colFormat(percent = T, digits = 1)
+        )
+      )
+    )
+  return(rt)
+}
+
+```
+
+
+### For UI piece:
 ```{r eval=FALSE, include=FALSE}
 # this will be in the dashboardbody piece
 tabItem(tabName = "table", 
@@ -46,7 +537,7 @@ tabItem(tabName = "table",
                             column(3, reactableOutput("table")) %>% withSpinner(color = "navy")))
 ```
 
-For Server piece:
+### For Server piece:
 ```{r}
 #need some of these but not all I think
 library(shiny)
