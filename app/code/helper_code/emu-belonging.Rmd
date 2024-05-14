@@ -26,12 +26,84 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## UI draft
 ```{r}
-
+dashboardBody(
+  tabItem(tabName = "table", 
+                    
+                        # summary section
+                        # includeMarkdown("www/summary.md"),    
+                        fluidRow(
+                            column(3, uiOutput("dynamicFilter")),
+                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))
+  ))
 ```
 
 
 ## Server draft
 ```{r}
-
+shinyServer(function(input, output) {
+    
+    # Dynamic UI for additional filters
+    output$dynamicFilter <- renderUI({
+        if(input$typeSelect == "Undergraduate") {
+            selectInput("yearSelect", "Select Year:", 
+                        choices = c("2018", "2019", "2020", "2022", "Overall"))
+        } else if(input$typeSelect == "International") {
+            selectInput("intSelect", "Select Category:", 
+                        choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
+        } else {
+            return()
+        }
+    })
+    
+    
+    # Render the correct table based on the input selection
+    output$table <- renderReactable({
+        if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
+            rt_emu_us_ug
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
+            rt_emu_us_ug_ay2122
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
+            rt_emu_us_ug_ay1920
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2019") {
+            rt_emu_us_ug_ay1819
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2018") {
+            rt_emu_us_ug_ay1718
+        } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
+            rt_emu_i
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
+            rt_emu_i_ay2122
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
+            rt_emu_i_ug_ay1920
+        } else if(input$typeSelect == "Graduate") {
+            rt_emu_gr_ay2122
+        }
+    })
+    
+    output$emuImage <- renderImage({
+        # Decide which table to render after the data has been effectively filtered based on the following filters
+        if(input$typeSelect == "Undergraduate" && (is.null(input$yearSelect) || input$yearSelect == "Overall")) {
+            return("Select year breakdown :)")
+        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2022") {
+            list(src = "maps/map_emu_b_us_ug_ay2122.png")
+        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2020") {
+            list(src = "maps/map_emu_b_us_ug_ay1920.png")
+        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2019") {
+            list(src = "maps/map_emu_b_us_ug_ay1819.png")
+        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2018") {
+            list(src = "maps/map_emu_b_us_ug_ay1718.png")
+        } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
+            return("Select year breakdown :)")
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
+            return(rt_cam_i_ay2122)
+            list(src = "maps/map_emu_b_i_ug_ay2122.png")
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
+            return(rt_cam_i_ug_ay1920)
+            list(src = "maps/map_emu_b_i_ug_ay1920.png")
+        } else if(input$typeSelect == "Graduate") {
+            list(src = "maps/map_emu_b_gr_ay2122.png")
+        }
+    })
+    
+})
 ```
 
