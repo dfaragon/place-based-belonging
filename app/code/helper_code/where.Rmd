@@ -15,29 +15,273 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Brian's Code
 ```{r}
+library(reactable)
+library(htmltools)
+library(treemapify)
+
+#function for getting place counts
+place_fun<- function(dat, s_vec, c_vec, gt, lt, p, by_p, n_dat) {
+  df<- full_join(
+    dat  %>%
+      within(
+        full_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      filter(
+        sample %in% c(s_vec) &
+          cohort %in% c(c_vec) &
+          ayear > gt &
+          ayear < lt &
+          sent == "Belong"
+      ) %>%
+      count(!!sym(p)) %>%
+      arrange(desc(n)),
+    dat %>%
+      within(
+        full_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      within(
+        agg_place[
+          agg_place == "Other" |
+            agg_place == "Out of Bounds"
+        ]<- "Other/Out of Bounds"
+      ) %>%
+      filter(
+        sample %in% c(s_vec) &
+          cohort %in% c(c_vec) &
+          ayear > gt &
+          ayear < lt &
+          sent == "Don't Belong"
+      ) %>%
+      count(!!sym(p)) %>%
+      arrange(desc(n)),
+    by = by_p
+  ) %>%
+    filter(!!sym(p) != "No Place") %>%
+    rename(
+      n_b = n.x,
+      n_db = n.y
+    ) %>%
+    within(n_b[is.na(n_b)]<- 0) %>%
+    within(n_db[is.na(n_db)]<- 0) %>%
+    mutate(
+      perc_click_b = n_b/sum(n_b)*100,
+      perc_click_db = n_db/sum(n_db)*100,
+      perc_stud_b = n_b/sum(n_dat$n_b)*100,
+      perc_stud_db = n_db/sum(n_dat$n_db)*100,
+      incl = n_b/(n_b+n_db)*100
+    ) %>%
+    select(!!sym(p), incl, n_b, n_db, everything())
+  return(df)
+}
+
+#function for interactive reactables
+reactable_fun<- function(dat) {
+  options(
+    reactable.theme = reactableTheme(
+      color = "hsl(233, 9%, 87%)",
+      backgroundColor = "hsl(233, 9%, 19%)",
+      borderColor = "hsl(233, 9%, 22%)",
+      stripedColor = "hsl(233, 12%, 22%)",
+      highlightColor = "hsl(233, 12%, 24%)",
+      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
+    )
+  )
+  rt<- dat %>%
+    reactable(
+      .,
+      groupBy = "agg_place",
+      showPageSizeOptions = T,
+      paginateSubRows = T,
+      defaultSorted = c("agg_place", "full_place"),
+      sortable = T,
+      showSortable = T,
+      striped = T,
+      highlight = T,
+      bordered = T,
+      defaultColDef = colDef(
+        vAlign = "center",
+        headerVAlign = "bottom"
+      ),
+      columns = list(
+        agg_place = colDef(
+          name = "Aggregated Place",
+          filterable = T,
+          align = "left",
+          minWidth = 240
+        ),
+        full_place = colDef(
+          name = "Place",
+          align = "left",
+          minWidth = 215
+        ),
+        n_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Belong"
+            }'
+          )
+        ),
+        n_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Don\'t" +
+              "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        incl = colDef(
+          aggregate = "mean",
+          name = "Inclusive",
+          align = "center",
+          format = colFormat(percent = T, digits = 1)
+        )
+      )
+    )
+  return(rt)
+}
+
+
+# Function for preparing data for tree maps
+table_for_cam_tm_fun<- function(dat, s_vec, c_vec, gt, lt, p, by_p, n_dat) {
+  tab<- place_fun(
+    dat, s_vec, c_vec, gt, lt, p, by_p, n_dat
+  ) %>%
+    mutate(tot = n_b + n_db) %>%
+    filter(tot > 19) %>%
+    filter(
+      !(
+        str_detect(full_place, "Lawn") |
+          str_detect(full_place, "Other") |
+          str_detect(full_place, "Bounds")
+      )
+    ) %>%
+    mutate(
+      place = case_when(
+        str_detect(full_place, "Prince") ~ "PLC",
+        str_detect(full_place, "Fenton") ~ "Fent",
+        str_detect(full_place, "LERC") ~ "MS",
+        str_detect(full_place, "Esslinger") ~ "Essl",
+        full_place == "Cascade" ~ "Cas",
+        str_detect(full_place, "Moss") ~ "Moss",
+        str_detect(full_place, "Black") ~ "BCC",
+        str_detect(full_place, "McArthur") ~ "Mac",
+        str_detect(full_place, "Friendly") ~ "Friend",
+        str_detect(full_place, "Saunders") ~ "Saun Stad",
+        full_place == "Tennis Indoor" ~ "TI",
+        str_detect(full_place, "Fine") ~ "FAS",
+        str_detect(full_place, "Turf Field 1") ~ "TF1",
+        str_detect(full_place, "History") ~ "MN CH",
+        str_detect(full_place, "Turf Field 3") ~ "TF3",
+        str_detect(full_place, "Duck") ~ "DS",
+        str_detect(full_place, "Longhouse") ~ "MNL",
+        str_detect(full_place, "Program Barn") ~ "Barn",
+        str_detect(full_place, "Straub/Earl") ~ "Straub/ Earl",
+        str_detect(full_place, "Center South") ~ "LLC South",
+        #all of the above too few to represent full label in small rectangle
+        #for us undergrad overall and with the exception of PLC these places
+        #don't affect other treemaps and PLC needs abbreviation in the others
+        TRUE ~ full_place
+      )
+    ) %>%
+    group_by(place) %>%
+    summarise(
+      incl = mean(incl),
+      tot = sum(tot)
+    )
+  return(tab)
+}
+
+# Function for tree map
+inclusive_tree_fun <- function(dat) {
+        df <- dat
+        cp <- as.vector(if_else(df$incl > 75, "#30313A", "#FCFFA4"))
+        plot <- dat %>%
+            ggplot(aes(area = tot, fill = incl, label = place)) +
+            geom_treemap() +
+            geom_treemap_text(place = "center", grow = TRUE, reflow = TRUE, color = cp) +
+            scale_fill_viridis_c(name = "Inclusiveness", option = "inferno", limits = c(0, 100)) +
+            theme(
+                panel.background = element_rect(fill = "#30313A"),
+                plot.background = element_rect(color = "#30313A", fill = "#30313A"),
+                legend.background = element_rect(fill = "#30313A"),
+                legend.title = element_text(color = "#FCFFA4"),
+                legend.text = element_text(color = "#FCFFA4"),
+                plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
+            )
+        return(plot)
+}
 
 ```
 
 ## Standardize
 ```{r}
-
-```
-
-
-## UI draft
-
-## Server draft
-
-
-## Possibly useful code
-
-
-just droppped in some code below. this is just the outline and works when you load everything in as .RData, but we want to avoid that. but you can use as draft - anwesha
-
-### Standardized piece (probably can be condensed even more)
-```{r initial setup, include = FALSE}
-
-knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(viridis)
 library(reactable)
@@ -151,78 +395,8 @@ too_many_resps_emu<- read_csv(
 #combine above for doing analyses by demos ####
 #join ds and dr to emu_long - reference bl wb by demos
 
-
-#function for getting place counts
-place_fun<- function(dat, s_vec, c_vec, gt, lt, p, by_p, n_dat) {
-  df<- full_join(
-    dat  %>%
-      within(
-        full_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      filter(
-        sample %in% c(s_vec) &
-          cohort %in% c(c_vec) &
-          ayear > gt &
-          ayear < lt &
-          sent == "Belong"
-      ) %>%
-      count(!!sym(p)) %>%
-      arrange(desc(n)),
-    dat %>%
-      within(
-        full_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      filter(
-        sample %in% c(s_vec) &
-          cohort %in% c(c_vec) &
-          ayear > gt &
-          ayear < lt &
-          sent == "Don't Belong"
-      ) %>%
-      count(!!sym(p)) %>%
-      arrange(desc(n)),
-    by = by_p
-  ) %>%
-    filter(!!sym(p) != "No Place") %>%
-    rename(
-      n_b = n.x,
-      n_db = n.y
-    ) %>%
-    within(n_b[is.na(n_b)]<- 0) %>%
-    within(n_db[is.na(n_db)]<- 0) %>%
-    mutate(
-      perc_click_b = n_b/sum(n_b)*100,
-      perc_click_db = n_db/sum(n_db)*100,
-      perc_stud_b = n_b/sum(n_dat$n_b)*100,
-      perc_stud_db = n_db/sum(n_dat$n_db)*100,
-      incl = n_b/(n_b+n_db)*100
-    ) %>%
-    select(!!sym(p), incl, n_b, n_db, everything())
-  return(df)
-}
-
 #lt term in ns_fun, nw_fun, and place_fun for us undergrad overall and us undergrad by cohort sets
 lt_term<- 2223 #CHANGE increment term as ayears are added
-
-
 
 #make vectors for indexing ####
 vnm_long<- names(campus_long) #same as emu_long
@@ -258,288 +432,33 @@ vnm_pl<- c(
   "perc_stud_b",
   "perc_stud_db"
 )
-
-#function for interactive datatables
-reactable_fun<- function() {
-  options(
-    reactable.theme = reactableTheme(
-      color = "hsl(233, 9%, 87%)",
-      backgroundColor = "hsl(233, 9%, 19%)",
-      borderColor = "hsl(233, 9%, 22%)",
-      stripedColor = "hsl(233, 12%, 22%)",
-      highlightColor = "hsl(233, 12%, 24%)",
-      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
-    )
-  )
-  rt<- bind_rows(
-    pl_cam %>%
-      left_join(
-        .,
-        places %>%
-          filter(level == "campus") %>%
-          select(full_place, agg_place),
-        by = "full_place"
-      ) %>%
-      distinct(full_place, .keep_all = T) %>%
-      mutate(
-        incl = incl / 100,
-        across(
-          perc_click_b:perc_stud_db, ~.x / 100
-        )
-      ) %>%
-      within(
-        full_place[
-          full_place == "Jordan Schnitzer Museum of Art"
-        ]<- "J. Schnitzer Museum of Art"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Thompson's University Center"
-        ]<- "Thompson's Univ Center"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Museum of Natural and Cultural History"
-        ]<- "Museum of Nat & Cult Hist"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Campus Planning and Facilities Management"
-        ]<- "Campus Plan & Facil Mgmt"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Jordan Schnitzer Museum of Art"
-        ]<- "J. Schnitzer Museum of Art"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Museum of Natural and Cultural History"
-        ]<- "Museum of Nat & Cult Hist"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Campus Planning and Facilities Management"
-        ]<- "Campus Plan & Facil Mgmt"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Student Recreation Complex"
-        ]<- "Student Rec Complex"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Thompson's University Center"
-        ]<- "Thompson's Univ Center"
-      ) %>%
-      within(
-        agg_place[
-          is.na(agg_place)
-        ]<- "Other/Out of Bounds"
-      ),
-    pl_emu %>%
-      left_join(
-        .,
-        places %>%
-          filter(level == "emu") %>%
-          select(full_place, agg_place),
-        by = "full_place"
-      ) %>%
-      distinct(full_place, .keep_all = T) %>%
-      mutate(
-        incl = incl / 100,
-        across(
-          perc_click_b:perc_stud_db, ~.x / 100
-        ),
-        agg_place = "EMU-Specific Places"
-      ) %>%
-      within(
-        full_place[
-          full_place == "ASUO Student Governance Center"
-        ]<- "ASUO Stdnt Gov Cntr"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Bartolotti's Pizza Bistro"
-        ]<- "Bartolotti's Pizza"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Center for Student Involvement Resource Center"
-        ]<- "CSI Resource Center"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Collegiate Recover Center"
-        ]<- "Collegiate Recovery Cntr"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Falling Sky Pizzeria and Public House"
-        ]<- "Falling Sky"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Fraternity and Sorority Life"
-        ]<- "Fraternity & Sorority Life"
-      ) %>%
-      within(
-        full_place[
-          full_place == "International Student Association"
-        ]<- "Intl Stdnt Assoc"
-      ) %>%
-      within(
-        full_place[
-          full_place == "International Student Groups"
-        ]<- "Intl Stdnt Groups"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Legal Services Student Advocacy"
-        ]<- "Legal Srvc Stdnt Advocacy"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Nontraditional Student Union"
-        ]<- "Nontrad Stdnt Union"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Scheduling and Event Services"
-        ]<- "Sched & Event Services"
-      ) %>%
-      within(
-        full_place[
-          full_place == "Student Sustainability Center"
-        ]<- "Stdnt Sustainability Cntr"
-      )
-  ) %>%
-    reactable(
-      .,
-      groupBy = "agg_place",
-      showPageSizeOptions = T,
-      paginateSubRows = T,
-      defaultSorted = c("agg_place", "full_place"),
-      sortable = T,
-      showSortable = T,
-      striped = T,
-      highlight = T,
-      bordered = T,
-      defaultColDef = colDef(
-        vAlign = "center",
-        headerVAlign = "bottom"
-      ),
-      columns = list(
-        agg_place = colDef(
-          name = "Aggregated Place",
-          filterable = T,
-          align = "left",
-          minWidth = 240
-        ),
-        full_place = colDef(
-          name = "Place",
-          align = "left",
-          minWidth = 215
-        ),
-        n_b = colDef(
-          aggregate = "sum",
-          align = "center",
-          format = colFormat(separators = T, digits = 0),
-          html = T,
-          header = JS(
-            'function(column) {
-              return `<div style="font-style: italic">n</div>` + "Belong"
-            }'
-          )
-        ),
-        n_db = colDef(
-          aggregate = "sum",
-          align = "center",
-          format = colFormat(separators = T, digits = 0),
-          html = T,
-          header = JS(
-            'function(column) {
-              return `<div style="font-style: italic">n</div>` + "Don\'t" +
-              "<br>Belong"
-            }'
-          )
-        ),
-        perc_click_b = colDef(
-          aggregate = "sum",
-          align = "center",
-          format = colFormat(percent = T, digits = 1),
-          html = T,
-          header = JS(
-            'function(column) {
-              return "Click" + "<br>Belong"
-            }'
-          )
-        ),
-        perc_click_db = colDef(
-          aggregate = "sum",
-          align = "center",
-          format = colFormat(percent = T, digits = 1),
-          html = T,
-          header = JS(
-            'function(column) {
-              return "Click" + "<br>Don\'t" + "<br>Belong"
-            }'
-          )
-        ),
-        perc_stud_b = colDef(
-          aggregate = "sum",
-          align = "center",
-          format = colFormat(percent = T, digits = 1),
-          html = T,
-          header = JS(
-            'function(column) {
-              return "Student" + "<br>Belong"
-            }'
-          )
-        ),
-        perc_stud_db = colDef(
-          aggregate = "sum",
-          align = "center",
-          format = colFormat(percent = T, digits = 1),
-          html = T,
-          header = JS(
-            'function(column) {
-              return "Student" + "<br>Don\'t" + "<br>Belong"
-            }'
-          )
-        ),
-        incl = colDef(
-          aggregate = "mean",
-          name = "Inclusive",
-          align = "center",
-          format = colFormat(percent = T, digits = 1)
-        )
-      )
-    )
-  return(rt)
-}
-
 ```
 
 
-### For UI piece:
-```{r eval=FALSE, include=FALSE}
-# this will be in the dashboardbody piece
-tabItem(tabName = "table", 
-                    
-                        # summary section
-                        # includeMarkdown("www/summary.md"),    
-                        fluidRow(
-                            column(3, uiOutput("dynamicFilter")),
-                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy")))
-```
+## UI draft
 
-### For Server piece:
 ```{r}
-#need some of these but not all I think
+# UI draft
+# Used code from the campus-belonging rmd
+
+dashboardBody(
+  tabItem(tabName = "table", 
+          fluidRow(
+              column(3, uiOutput("dynamicFilter")),
+              column(6, reactableOutput("table") %>% withSpinner(color = "navy")),
+              column(3, plotOutput("treemap"))
+          )
+  )
+)
+
+
+```
+
+## Server draft
+
+```{r server}
+# Server Draft
+# need some of these but not all I think
 library(shiny)
 library(tidyverse)
 library(rvest)
@@ -586,5 +505,31 @@ shinyServer(function(input, output) {
     })
     
 })
+
+# Render tree map based on input
+    output$treemap <- renderPlot({
+        if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
+          rt_cam_us_ug
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
+            rt_cam_us_ug_ay2122
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
+            rt_cam_us_ug_ay1920
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2019") {
+            rt_cam_us_ug_ay1819
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2018") {
+            rt_cam_us_ug_ay1718
+        } else if (input$typeSelect == "International" && input$intSelect == "Overall") {
+            rt_cam_i
+        } else if (input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
+            rt_cam_i_ay2122
+        } else if (input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
+            rt_cam_i_ug_ay1920
+        } else if (input$typeSelect == "Graduate") {
+            rt_cam_gr_ay2122
+        }
+    })
+
+
 ```
+
 
