@@ -34,12 +34,15 @@ dashboardBody(
                         fluidRow(
                             column(3, uiOutput("dynamicFilter")),
                             column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))
+          #add map tabItem
   ))
 ```
 
 
 ## Server draft
 ```{r}
+# add reactable_fun() is here
+
 shinyServer(function(input, output) {
     
     # Dynamic UI for additional filters
@@ -50,6 +53,7 @@ shinyServer(function(input, output) {
         } else if(input$typeSelect == "International") {
             selectInput("intSelect", "Select Category:", 
                         choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
+          #add whichever remaining filter (see pbb HTML)
         } else {
             return()
         }
@@ -59,7 +63,7 @@ shinyServer(function(input, output) {
     # Render the correct table based on the input selection
     output$table <- renderReactable({
         if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
-            rt_emu_us_ug
+            reactable_fun(us_ug)
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
             rt_emu_us_ug_ay2122
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
