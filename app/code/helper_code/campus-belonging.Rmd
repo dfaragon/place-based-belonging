@@ -5,6 +5,8 @@ title: "Campus Belonging"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(shinydashboard)
+library(usethis)
+use_git_config(user.name = "dfaragon", user.email = "dotz.da@gmail.com")
 ```
 
 ## What we need here:
