@@ -4,6 +4,7 @@ title: "Campus Belonging"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(shinydashboard)
 ```
 
 ## What we need here:
@@ -33,7 +34,9 @@ dashboardBody(
                         # includeMarkdown("www/summary.md"),    
                         fluidRow(
                             column(3, uiOutput("dynamicFilter")),
+                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"),
                             column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))
+          
   ))
 ```
 
@@ -59,23 +62,23 @@ shinyServer(function(input, output) {
     # Render the correct table based on the input selection
     output$table <- renderReactable({
         if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
-            rt_cam_us_ug
+            us_ug
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
-            rt_cam_us_ug_ay2122
+            us_ug_ay2122
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
-            rt_cam_us_ug_ay1920
+            us_ug_ay1920
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2019") {
-            rt_cam_us_ug_ay1819
+            us_ug_ay1819
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2018") {
-            rt_cam_us_ug_ay1718
+            us_ug_ay1718
         } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
-            rt_cam_i
+            i
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
-            rt_cam_i_ay2122
+            i_ay2122
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
-            rt_cam_i_ug_ay1920
+            i_ug_ay1920
         } else if(input$typeSelect == "Graduate") {
-            rt_cam_gr_ay2122
+            gr_ay2122
         }
     })
     
@@ -84,23 +87,23 @@ shinyServer(function(input, output) {
         if(input$typeSelect == "Undergraduate" && (is.null(input$yearSelect) || input$yearSelect == "Overall")) {
             return("Select year breakdown :)")
         } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2022") {
-            list(src = "maps/map_cam_b_us_ug_ay2122.png")
+            list(src = "maps/b_map_cam_us_ug_ay2122.png")
         } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2020") {
-            list(src = "maps/map_cam_b_us_ug_ay1920.png")
+            list(src = "maps/b_map_cam_us_ug_ay1920.png")
         } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2019") {
-            list(src = "maps/map_cam_b_us_ug_ay1819.png")
+            list(src = "maps/b_map_cam_us_ug_ay1819.png")
         } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2018") {
-            list(src = "maps/map_cam_b_us_ug_ay1718.png")
+            list(src = "maps/b_map_cam_us_ug_ay1718.png")
         } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
             return("Select year breakdown :)")
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
             return(rt_cam_i_ay2122)
-            list(src = "maps/map_cam_b_i_ug_ay2122.png")
+            list(src = "maps/b_map_cam_i_ug_ay2122.png")
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
             return(rt_cam_i_ug_ay1920)
-            list(src = "maps/map_cam_b_i_ug_ay1920.png")
+            list(src = "maps/b_map_cam_i_ug_ay1920.png")
         } else if(input$typeSelect == "Graduate") {
-            list(src = "maps/map_cam_b_gr_ay2122.png")
+            list(src = "maps/b_map_cam_gr_ay2122.png")
         }
     })
     
