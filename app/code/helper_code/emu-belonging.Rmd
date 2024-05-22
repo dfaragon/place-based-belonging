@@ -13,99 +13,355 @@ knitr::opts_chunk$set(echo = TRUE)
 - maps are already extracted in "maps" folder: i have the standardized code for this already created so let me know if you are doing this piece -anwesha
 - hover for text (see NPS example)
 
-## Brian's Code
-```{r}
-
-```
-
-## Standardized
-```{r}
-
-```
 
 
 ## UI draft
 ```{r}
+# UI draft
+
+
 dashboardBody(
   tabItem(tabName = "table", 
-                    
-                        # summary section
-                        # includeMarkdown("www/summary.md"),    
-                        fluidRow(
-                            column(3, uiOutput("dynamicFilter")),
-                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))
-          #add map tabItem
-  ))
+          fluidRow(
+              column(3, uiOutput("dynamicFilter")),
+              column(6, reactableOutput("table") %>% withSpinner(color = "navy")),
+              column(3, plotOutput("emuImage"))
+          )
+  )
+)
+
+
+
+
 ```
 
 
 ## Server draft
 ```{r}
-# add reactable_fun() is here
 
+library(reactable)
+library(htmltools)
+library(treemapify)
+library(shiny)
+library(tidyverse)
+library(rvest)
+library(leaflet.extras)
+
+########################################
+
+#function for interactive reactables
+reactable_fun<- function(dat) {
+  options(
+    reactable.theme = reactableTheme(
+      color = "hsl(233, 9%, 87%)",
+      backgroundColor = "hsl(233, 9%, 19%)",
+      borderColor = "hsl(233, 9%, 22%)",
+      stripedColor = "hsl(233, 12%, 22%)",
+      highlightColor = "hsl(233, 12%, 24%)",
+      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
+    )
+  )
+  rt<- dat %>%
+    reactable(
+      .,
+      groupBy = "agg_place",
+      showPageSizeOptions = T,
+      paginateSubRows = T,
+      defaultSorted = c("agg_place", "full_place"),
+      sortable = T,
+      showSortable = T,
+      striped = T,
+      highlight = T,
+      bordered = T,
+      defaultColDef = colDef(
+        vAlign = "center",
+        headerVAlign = "bottom"
+      ),
+      columns = list(
+        agg_place = colDef(
+          name = "Aggregated Place",
+          filterable = T,
+          align = "left",
+          minWidth = 240
+        ),
+        full_place = colDef(
+          name = "Place",
+          align = "left",
+          minWidth = 215
+        ),
+        n_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Belong"
+            }'
+          )
+        ),
+        n_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Don\'t" +
+              "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        incl = colDef(
+          aggregate = "mean",
+          name = "Inclusive",
+          align = "center",
+          format = colFormat(percent = T, digits = 1)
+        )
+      )
+    )
+  return(rt)
+}
+
+
+########################################
+    
+    # Dynamic UI for additional filters
 shinyServer(function(input, output) {
     
     # Dynamic UI for additional filters
     output$dynamicFilter <- renderUI({
-        if(input$typeSelect == "Undergraduate") {
+    if(input$typeSelect == "Undergraduate") {
+        # Default tag list for Undergraduate
+        filters <- tagList(
             selectInput("yearSelect", "Select Year:", 
-                        choices = c("2018", "2019", "2020", "2022", "Overall"))
-        } else if(input$typeSelect == "International") {
+                        choices = c("2018", "2019", "2020", "2022", "Overall")),
+            selectInput("cohortSelect", "Select Cohort:", 
+                        choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+        )
+
+        # Add floor selection for specific years
+        if (input$yearSelect %in% c("2018", "2019")) {
+            filters <- tagList(
+                filters,
+                selectInput("floorSelect", "Select Floor:", 
+                            choices = c("Full Building", "Level 1", "Level 2"))
+            )
+        }
+
+        return(filters)
+    } else if(input$typeSelect == "International") {
+        # Filters for International
+        return(tagList(
             selectInput("intSelect", "Select Category:", 
                         choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
-          #add whichever remaining filter (see pbb HTML)
-        } else {
-            return()
-        }
-    })
+        ))
+    } else if(input$typeSelect == "Graduate") {
+        # Filters for Graduate
+        return(tagList(
+            selectInput("yearSelect", "Select Year:", 
+                        choices = c("2022", "Overall"))
+        ))
+    }
+  })
+
+  # Belonging
+    # undergrad full year belonging maps emu: 1920, 2122
+      # undergrad cohort specific belonging maps emu: Year: 1920 level: Full building
+        # cohort: 1617, 1718, 1819, 1920
+      # undergrad cohort specific belonging maps emu: Year: 2122 level: Full building
+        # cohort: 1819, 1920, 2021, 2122
+      # undergrad belonging map emu: 1718
+        # level 1 & level 2
+      # undergrad belonging map emu: 1819
+        # level 1 & level 2
+          # cohort: 1516, 1617, 1718, 1819
+    # grad full year belonging map emu: 2122
+    # international full year belonging map emu: 2122
+    # international undergrad full year belonging map: 1920
     
+  # Don't belong
+    # undergrad full year don't belong maps emu: 1920, 2122
+      # undergrad cohort specific dont belong emu: Year: 1920
+        # cohort: 1617, 1718, 1819, 1920
+      # undergrad cohort specific dont belong emu: Year: 2122
+        # cohort: 1819, 1920, 2021, 2122
+      # undergrad cohort specific dont belong emu: Year: 1718
+        # level: level 1, level 2
+      # undergrad cohort specific dont belong emu: Year: 1819
+        # level: level 1, level 2
+          # cohort: 1516, 1617, 1718, 1819
+    # grad full year dont belong emu: 2122
+    # international dont belong emu: 2122
+    # international undergrad dont belong emu: 1920
     
     # Render the correct table based on the input selection
     output$table <- renderReactable({
-        if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
-            reactable_fun(us_ug)
-        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
-            rt_emu_us_ug_ay2122
-        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
-            rt_emu_us_ug_ay1920
-        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2019") {
-            rt_emu_us_ug_ay1819
-        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2018") {
-            rt_emu_us_ug_ay1718
-        } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
-            rt_emu_i
-        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
-            rt_emu_i_ay2122
-        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
-            rt_emu_i_ug_ay1920
-        } else if(input$typeSelect == "Graduate") {
-            rt_emu_gr_ay2122
+    table_to_display <- NULL
+
+    if(input$typeSelect == "Undergraduate") {
+        year <- input$yearSelect
+
+        if(is.null(year) || year == "Overall") {
+            table_to_display <- reactable_fun(us_ug)
+        } else if (year %in% c("2022", "2020", "2019", "2018")) {
+            table_name <- paste0("rt_emu_us_ug_ay", year)
+            table_to_display <- get(table_name)  # dynamically get the table based on the year
         }
-    })
+    } else if(input$typeSelect == "International") {
+        if (input$intSelect == "Overall") {
+            table_to_display <- rt_emu_i
+        } else if (input$intSelect == "Undergrad and Grad 2022") {
+            table_to_display <- rt_emu_i_ay2122
+        } else if (input$intSelect == "Undergrad 2020") {
+            table_to_display <- rt_emu_i_ug_ay1920
+        }
+    } else if(input$typeSelect == "Graduate" && input$yearSelect == "2022") {
+        table_to_display <- rt_emu_gr_ay2122
+    }
+    # Render the table if it has been set
+      # Note: this is a chatGPT suggestion
+    if (!is.null(table_to_display)) {
+        reactable(table_to_display)
+    } else {
+        HTML("<p>No data available for the selected options.</p>")
+    }
+  })
     
-    output$emuImage <- renderImage({
-        # Decide which table to render after the data has been effectively filtered based on the following filters
-        if(input$typeSelect == "Undergraduate" && (is.null(input$yearSelect) || input$yearSelect == "Overall")) {
-            return("Select year breakdown :)")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2022") {
-            list(src = "maps/map_emu_b_us_ug_ay2122.png")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2020") {
-            list(src = "maps/map_emu_b_us_ug_ay1920.png")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2019") {
-            list(src = "maps/map_emu_b_us_ug_ay1819.png")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2018") {
-            list(src = "maps/map_emu_b_us_ug_ay1718.png")
-        } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
-            return("Select year breakdown :)")
-        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
-            return(rt_cam_i_ay2122)
-            list(src = "maps/map_emu_b_i_ug_ay2122.png")
-        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
-            return(rt_cam_i_ug_ay1920)
-            list(src = "maps/map_emu_b_i_ug_ay1920.png")
-        } else if(input$typeSelect == "Graduate") {
-            list(src = "maps/map_emu_b_gr_ay2122.png")
+    
+     output$emuImage <- renderUI({
+        # Define the base path for images
+          # Note: this is a chatGPT suggestion
+        base_path <- "maps/"
+
+        # Initialize the image source variables
+            # Note: this is a chatGPT suggestion
+        image_src_belonging <- ""
+        image_src_not_belonging <- ""
+
+        if(input$typeSelect == "Undergraduate") {
+            # Note: this is a chatGPT suggestion
+            year <- input$yearSelect
+            cohort <- input$cohortSelect
+            floor <- input$floorSelect
+
+            if (is.null(year) || year == "Overall") {
+                image_src_belonging <- ""
+                image_src_not_belonging <- ""
+            } else if (year == "2122") {
+                if (cohort == "All Cohorts") {
+                    image_src_belonging <- paste0(base_path, "b_map_emu_us_ug_ay2122.png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu_us_ug_ay2122.png")
+                } else if (cohort %in% c("1819", "1920", "2021", "2122")) {
+                    cohort <- gsub("/", "", cohort)  # Remove '/' from cohort name
+                    image_src_belonging <- paste0(base_path, "b_map_emu_us_ug_ay2122_c", cohort, ".png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu_us_ug_ay2122_c", cohort, ".png")
+                }
+            } else if (year == "1920") {
+                if (cohort == "All Cohorts") {
+                    image_src_belonging <- paste0(base_path, "b_map_emu_us_ug_ay1920.png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu_us_ug_ay1920.png")
+                } else if (cohort %in% c("1617", "1718", "1819", "1920")) {
+                    cohort <- gsub("/", "", cohort)
+                    image_src_belonging <- paste0(base_path, "b_map_emu_us_ug_ay1920_c", cohort, ".png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu_us_ug_ay1920_c", cohort, ".png")
+                }
+            } else if (year == "1819") {
+                if (floor == "Level 1") {
+                   if (cohort == "All Cohorts") {
+                    image_src_belonging <- paste0(base_path, "b_map_emu1_us_ug_ay1819.png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu1_us_ug_ay1819.png")
+             } else {
+                  cohort <- gsub("/", "", cohort)  # Clean cohort name if necessary
+                    image_src_belonging <- paste0(base_path, "b_map_emu1_us_ug_ay1819_c", cohort, ".png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu1_us_ug_ay1819_c", cohort, ".png")
+                }
+             } else if (floor == "Level 2") {
+                if (cohort == "All Cohorts") {
+                    image_src_belonging <- paste0(base_path, "b_map_emu2_us_ug_ay1819.png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu2_us_ug_ay1819.png")
+             } else {
+                  cohort <- gsub("/", "", cohort)  # Clean cohort name if necessary
+                    image_src_belonging <- paste0(base_path, "b_map_emu2_us_ug_ay1819_c", cohort, ".png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu2_us_ug_ay1819_c", cohort, ".png")
+                }
+              }
+            } else if (year == "1718") {
+              if (floor == "Level 1") {
+                    image_src_belonging <- paste0(base_path, "b_map_emu1_us_ug_ay1718.png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu1_us_ug_ay1718.png")
+              } else if (floor == "Level 2") {
+                    image_src_belonging <- paste0(base_path, "b_map_emu2_us_ug_ay1718.png")
+                    image_src_not_belonging <- paste0(base_path, "db_map_emu2_us_ug_ay1718.png")
+              }
+            }
+        } else if(input$typeSelect == "International") {
+            if (input$intSelect == "Overall") {
+                image_src_belonging <- ""
+                image_src_not_belonging <- ""
+            } else if (input$intSelect == "Undergrad and Grad 2022") {
+                image_src_belonging <- paste0(base_path, "b_map_emu_b_i_ug_ay2122.png")
+                image_src_not_belonging <- paste0(base_path, "db_map_emu_b_i_ug_ay2122.png")
+            } else if (input$intSelect == "Undergrad 2020") {
+                image_src_belonging <- paste0(base_path, "b_map_emu_b_i_ug_ay1920.png")
+                image_src_not_belonging <- paste0(base_path, "db_map_emu_b_i_ug_ay1920.png")
+            }
+        } else if(input$typeSelect == "Graduate" && input$yearSelect == "2022") {
+            image_src_belonging <- paste0(base_path, "b_map_emu_b_gr_ay2122.png")
+            image_src_not_belonging <- paste0(base_path, "db_map_emu_b_gr_ay2122.png")
         }
+
+        tagList(
+            img(src = image_src_belonging, height = "500px"),
+            img(src = image_src_not_belonging, height = "500px")
+        )
     })
     
 })
