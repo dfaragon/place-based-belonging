@@ -23,22 +23,22 @@ load("pbb2.RData")
 # SERVER LOGIC #
 ################
 
-shinyServer(function(input, output) {
-    
+shinyServer(function(input, output, session) {
+
     # Dynamic UI for additional filters
     output$dynamicFilter <- renderUI({
         if(input$typeSelect == "Undergraduate") {
-            selectInput("yearSelect", "Select Year:", 
+            selectInput("yearSelect", "Select Year:",
                         choices = c("2018", "2019", "2020", "2022", "Overall"))
         } else if(input$typeSelect == "International") {
-            selectInput("intSelect", "Select Category:", 
+            selectInput("intSelect", "Select Category:",
                         choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
         } else {
             return()
         }
     })
 
-    
+
     # Render the correct table based on the input selection
     output$table <- renderReactable({
         if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
@@ -61,5 +61,5 @@ shinyServer(function(input, output) {
             rt_cam_gr_ay2122
         }
     })
-    
+
 })
