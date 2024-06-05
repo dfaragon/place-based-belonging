@@ -15,6 +15,7 @@ use_git_config(user.name = "dfaragon", user.email = "dotz.da@gmail.com")
 - filter apply to both maps
 - maps are already extracted in "maps" folder: i have the standardized code for this already created so let me know if you are doing this piece -anwesha
 - hover for text (see NPS example)
+- just heat maps? 
 
 ## Brian's Code
 ```{r}
@@ -26,6 +27,17 @@ use_git_config(user.name = "dfaragon", user.email = "dotz.da@gmail.com")
 
 ```
 
+## Data Tables 
+```{r}
+# # bar plots
+# tables_bp <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_bp.rds")
+# # tree maps
+# tables_tm <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_tm.rds")
+# # reactable tables
+# tables_rt <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_rt.rds")
+
+```
+  
 
 ## UI draft
 ```{r}
@@ -36,10 +48,9 @@ dashboardBody(
                         # includeMarkdown("www/summary.md"),    
                         fluidRow(
                             column(3, uiOutput("dynamicFilter")),
-                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"),
-                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))
-          
-  ))
+                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))))
+                            # column(3, inclusive_bar_fun("campusImage")) %>% withSpinner(color =         
+#   ))
 ```
 
 
@@ -49,12 +60,13 @@ shinyServer(function(input, output) {
     
     # Dynamic UI for additional filters
     output$dynamicFilter <- renderUI({
-        if(input$typeSelect == "Undergraduate") {
+        if(input$typeSelect == "US Undergraduate") { # added US for clarity
             selectInput("yearSelect", "Select Year:", 
                         choices = c("2018", "2019", "2020", "2022", "Overall"))
         } else if(input$typeSelect == "International") {
             selectInput("intSelect", "Select Category:", 
                         choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
+          # Here, do I add an option for campus inclusiveness after choosing the hear and needing to choose all years, 4th-year, 3-rd year etc. 
         } else {
             return()
         }
@@ -62,53 +74,309 @@ shinyServer(function(input, output) {
     
     
     # Render the correct table based on the input selection
+########  campus summary tables  ########   
+    ## do not change this is your original example and is correct ## 
     output$table <- renderReactable({
         if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
-            us_ug
+            reactable_fun(us_ug)
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
-            us_ug_ay2122
+            reactable_fun(us_ug_ay2122)
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
-            us_ug_ay1920
+            reactable_fun(us_ug_ay1920)
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2019") {
-            us_ug_ay1819
+            reactable_fun(us_ug_ay1819)
         } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2018") {
-            us_ug_ay1718
+            reactable_fun(us_ug_ay1718)
         } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
-            i
+            reactable_fun(i)
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
-            i_ay2122
+            reactable_fun(i_ay2122)
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
-            i_ug_ay1920
+            reactable_fun(i_ug_ay1920)
         } else if(input$typeSelect == "Graduate") {
-            gr_ay2122
+            reactable_fun(gr_ay2122)
         }
     })
     
-        output$campusImage <- renderImage({
-        # Decide which table to render after the data has been effectively filtered based on the following filters
-        if(input$typeSelect == "Undergraduate" && (is.null(input$yearSelect) || input$yearSelect == "Overall")) {
-            return("Select year breakdown :)")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2022") {
-            list(src = "maps/b_map_cam_us_ug_ay2122.png")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2020") {
-            list(src = "maps/b_map_cam_us_ug_ay1920.png")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2019") {
-            list(src = "maps/b_map_cam_us_ug_ay1819.png")
-        } else if(input$typeSelect == "Undergraduate" && length(input$yearSelect) && input$yearSelect == "2018") {
-            list(src = "maps/b_map_cam_us_ug_ay1718.png")
-        } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
-            return("Select year breakdown :)")
-        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
-            return(rt_cam_i_ay2122)
-            list(src = "maps/b_map_cam_i_ug_ay2122.png")
-        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
-            return(rt_cam_i_ug_ay1920)
-            list(src = "maps/b_map_cam_i_ug_ay1920.png")
-        } else if(input$typeSelect == "Graduate") {
-            list(src = "maps/b_map_cam_gr_ay2122.png")
+    
+########  campus heat maps  ########    
+    output$campusHeatMaps <- renderImage({
+        if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "AllYears") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay2122.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "4th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay2122_c2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay2122_c2122.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "3th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay2122_c2021.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay2122_c2021.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "2th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay2122_c1920.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay2122_c1920.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "1th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay2122_c1819.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay2122_c1819.png", style = "display:inline-block;")
+            )
+          #### spring 2020, 2021 was skipped
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2020" && input$yearSelect == "1st-through-5th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1920.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1920.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2020" && input$yearSelect == "4th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1920_c1920.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1920_c1920.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2020" && input$yearSelect == "3th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1920_c1819.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1920_c1819.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2020" && input$yearSelect == "2th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1920_c1718.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1920_c1718.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2020" && input$yearSelect == "1th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1920_c1617.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1920_c1617.png", style = "display:inline-block;")
+            )
+                    #### spring 2019
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "1st-through-4th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay2122_c2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay2122_c2122.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "4th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1819_c2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1819_c2122.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "3th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1819_c2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1819_c2122.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "2th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1819_c2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1819_c2122.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "1th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1819_c2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1819_c2122.png", style = "display:inline-block;")
+            )
+                              #### spring 2018
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2018" && input$yearSelect == "1st-through-3th-Year") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_us_ug_ay1718.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_us_ug_ay1718.png", style = "display:inline-block;")
+            )
+          ### international
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad Spring 2022") {
+            tags$div(
+                tags$img(src = "maps/map_cam_b_i_ay2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_i_ay2122.png", style = "display:inline-block;")
+            )
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad Spring 2020") {
+            tags$div(
+                tags$img(src = "maps/map_cam_db_i_ug_ay1920.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_i_ug_ay1920.png", style = "display:inline-block;")
+            )
+          ### graduate student
+        } else if(input$typeSelect == "Graduate") { # no other option needed here
+            tags$div(
+                tags$img(src = "maps/map_cam_b_gr_ay2122.png", style = "display:inline-block;margin-right:10px;"),
+                tags$img(src = "maps/map_cam_db_gr_ay2122.png", style = "display:inline-block;")
+            )
         }
     })
-    
+
 })
+    
+
+# first version     
+       # output$campusImage <- renderImage({
+        # Decide which table to render after the data has been effectively filtered based on the following filters
+    #     if(input$typeSelect == "US Undergraduate" && (is.null(input$yearSelect) || input$yearSelect == "Overall")) {
+    #         return("Select year breakdown :)")
+    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2022") {
+    #         list(src = "maps/b_map_cam_us_ug_ay2122.png")
+    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2020") {
+    #         list(src = "maps/b_map_cam_us_ug_ay1920.png")
+    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2019") {
+    #         list(src = "maps/b_map_cam_us_ug_ay1819.png")
+    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2018") {
+    #         list(src = "maps/b_map_cam_us_ug_ay1718.png")
+    #     } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
+    #         return("Select year breakdown :)")
+    #     } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
+    #         return(rt_cam_i_ay2122)
+    #         list(src = "maps/b_map_cam_i_ug_ay2122.png")
+    #     } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
+    #         return(rt_cam_i_ug_ay1920)
+    #         list(src = "maps/b_map_cam_i_ug_ay1920.png")
+    #     } else if(input$typeSelect == "Graduate") {
+    #         list(src = "maps/b_map_cam_gr_ay2122.png")
+    #     }
+    # })
+
+
+########  campus belong tree plots  ########  
+#### may be computationally expensive 
+    output$campusTreeMaps <- renderPlotly({
+        # Ensure yearSelect and classSelect are not null
+        if (is.null(input$yearSelect) || is.null(input$classSelect) || input$yearSelect == "Overall") {
+            return(NULL)
+        }
+        
+        # Mapping the years to their codes
+        yearMapping <- list(
+            "Spring 2018" = "ay1718",
+            "Spring 2019" = "ay1819",
+            "Spring 2020" = "ay1920",
+            "Spring 2021" = "ay2021",
+            "Spring 2022" = "ay2122"
+        )
+
+        # Mapping the class to their codes
+        classMapping <- list(
+            "1st-Year" = "c1",
+            "2nd-Year" = "c2",
+            "3rd-Year" = "c3",
+            "4th-Year" = "c4"
+        )
+
+        yearCode <- yearMapping[[input$yearSelect]]
+        classCode <- classMapping[[input$classSelect]]
+
+        # Generate the data for the tree map
+        dat <- your_data_preparation_function(yearCode, classCode)  # Assuming you have a function for this
+
+        # Call the inclusive_tree_fun function to generate the tree map
+        tree_map <- inclusive_tree_fun(dat)
+
+        # Return the plotly object
+        tree_map
+    })
+
+
+
+#### code if the computational cost of creating the maps is too much and we need to use already developed images 
+#     output$campusImage <- renderImage({
+#         # Ensure yearSelect and classSelect are not null
+#         if (is.null(input$yearSelect) || is.null(input$classSelect) || input$yearSelect == "Overall") {
+#             return("Select year breakdown :)")
+#         }
+#         
+#         # Mapping the years to their codes
+#         yearMapping <- list(
+#             "Spring 2018" = "ay1718",
+#             "Spring 2019" = "ay1819",
+#             "Spring 2020" = "ay1920",
+#             "Spring 2021" = "ay2021",
+#             "Spring 2022" = "ay2122"
+#         )
+# 
+#         # Mapping the class to their codes
+#         classMapping <- list(
+#             "AllYears" = "c_all", # would require that those without class add "c_all" in png image name 
+#             "1st-Year" = "c2122",
+#             "2nd-Year" = "c2021",
+#             "3rd-Year" = "c1920",
+#             "4th-Year" = "c1819"
+#         )
+# 
+#         yearCode <- yearMapping[[input$yearSelect]]
+#         classCode <- classMapping[[input$classSelect]]
+# 
+#         belongImage <- ""
+#         dontBelongImage <- ""
+# 
+#         # Constructing the image paths based on the typeSelect
+#         if (input$typeSelect == "US Undergraduate") {
+#             belongImage <- paste0("maps/map_cam_b_us_ug_", yearCode, "_", classCode, ".png")
+#             dontBelongImage <- paste0("maps/map_cam_db_us_ug_", yearCode, "_", classCode, ".png")
+#         } else if (input$typeSelect == "International") {
+#             belongImage <- paste0("maps/map_cam_b_i_", yearCode, "_", classCode, ".png")
+#             dontBelongImage <- paste0("maps/map_cam_db_i_", yearCode, "_", classCode, ".png")
+#         } else if (input$typeSelect == "Graduate") {
+#             belongImage <- paste0("maps/map_cam_b_gr_", yearCode, "_", classCode, ".png")
+#             dontBelongImage <- paste0("maps/map_cam_db_gr_", yearCode, "_", classCode, ".png")
+#         }
+# 
+#         # Rendering both images
+#         tags$div(
+#             tags$img(src = belongImage, style = "display:inline-block;margin-right:10px;"),
+#             tags$img(src = dontBelongImage, style = "display:inline-block;")
+#         )
+#     })
+# }
+
+        
+########  campus bar plots  ########    
+   ## good ## 
+    output$campusBarPlots <- renderReactable({
+        if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Overall") {
+            reactable_fun(cam_us_ug)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "AllYears") {
+            inclusive_bar_fun(cam_us_ug_ay2122)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "4th-Year") {
+            inclusive_bar_fun(cam_us_ug_ay2122_c2122)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "3th-Year") {
+            inclusive_bar_fun(cam_us_ug_ay2122_c2021)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "2th-Year") {
+            inclusive_bar_fun(cam_us_ug_ay2122_c1920)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "1th-Year") {
+            inclusive_bar_fun(cam_us_ug_ay2122_c1819)
+          #### spring 2020, 2021 was skipped
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2020" && input$yearSelect == "1st-through-5th-Year") {
+            inclusive_bar_fun(cam_us_ug_ay1920) 
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "4th-Year") {
+            inclusive_bar_fun(us_ug_ay1920_1920)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "3th-Year") {
+            inclusive_bar_fun(us_ug_ay1920_c1819)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "2th-Year") {
+            inclusive_bar_fun(us_ug_ay1920_c1718)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "1th-Year") {
+            inclusive_bar_fun(us_ug_ay2122_c1617)
+                    #### spring 2019
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "1st-through-4th-Year") {
+            inclusive_bar_fun(cam_us_ug_ay1819) 
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "4th-Year") {
+            inclusive_bar_fun(us_ug_ay1819_1819)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "3th-Year") {
+            inclusive_bar_fun(us_ug_ay1819_c1718)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "2th-Year") {
+            inclusive_bar_fun(us_ug_ay1819_c1617)
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "1th-Year") {
+            inclusive_bar_fun(us_ug_ay1819_c1516)
+                              #### spring 2018
+        } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2018" && input$yearSelect == "1st-through-3th-Year") {
+            inclusive_bar_fun(cam_us_ug_ay1718) 
+        } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
+            inclusive_bar_fun(i) # where is this one?? 
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad Spring 2022") {
+            inclusive_bar_fun(cam_i_ay2122)
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad Spring 2020") {
+            inclusive_bar_fun(cam_i_ug_ay1920)
+        } else if(input$typeSelect == "Graduate") { # no other option needed here
+            inclusive_bar_fun(cam_gr_ay2122)
+        }
+    })
+
+
 ```
 
