@@ -13,78 +13,41 @@ knitr::opts_chunk$set(echo = TRUE)
 - campus inclusiveness treemap
 - emu inclusiveness treemap
 
-## Brian's Code
+
+
+## UI draft
+
 ```{r}
+# UI draft
+# Used code from the campus-belonging rmd
+
+dashboardBody(
+  tabItem(tabName = "table", 
+          fluidRow(
+              column(3, uiOutput("dynamicFilter")),
+              column(6, reactableOutput("table") %>% withSpinner(color = "navy")),
+              column(3, plotOutput("treemap"))
+          )
+  )
+)
+
+
+```
+
+## Server draft
+
+```{r server}
+# Server Draft
+
 library(reactable)
 library(htmltools)
 library(treemapify)
+library(shiny)
+library(tidyverse)
+library(rvest)
+library(leaflet.extras)
 
-#function for getting place counts
-place_fun<- function(dat, s_vec, c_vec, gt, lt, p, by_p, n_dat) {
-  df<- full_join(
-    dat  %>%
-      within(
-        full_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      filter(
-        sample %in% c(s_vec) &
-          cohort %in% c(c_vec) &
-          ayear > gt &
-          ayear < lt &
-          sent == "Belong"
-      ) %>%
-      count(!!sym(p)) %>%
-      arrange(desc(n)),
-    dat %>%
-      within(
-        full_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      within(
-        agg_place[
-          agg_place == "Other" |
-            agg_place == "Out of Bounds"
-        ]<- "Other/Out of Bounds"
-      ) %>%
-      filter(
-        sample %in% c(s_vec) &
-          cohort %in% c(c_vec) &
-          ayear > gt &
-          ayear < lt &
-          sent == "Don't Belong"
-      ) %>%
-      count(!!sym(p)) %>%
-      arrange(desc(n)),
-    by = by_p
-  ) %>%
-    filter(!!sym(p) != "No Place") %>%
-    rename(
-      n_b = n.x,
-      n_db = n.y
-    ) %>%
-    within(n_b[is.na(n_b)]<- 0) %>%
-    within(n_db[is.na(n_db)]<- 0) %>%
-    mutate(
-      perc_click_b = n_b/sum(n_b)*100,
-      perc_click_db = n_db/sum(n_db)*100,
-      perc_stud_b = n_b/sum(n_dat$n_b)*100,
-      perc_stud_db = n_db/sum(n_dat$n_db)*100,
-      incl = n_b/(n_b+n_db)*100
-    ) %>%
-    select(!!sym(p), incl, n_b, n_db, everything())
-  return(df)
-}
+########################################
 
 #function for interactive reactables
 reactable_fun<- function(dat) {
@@ -208,55 +171,7 @@ reactable_fun<- function(dat) {
 }
 
 
-# Function for preparing data for tree maps
-table_for_cam_tm_fun<- function(dat, s_vec, c_vec, gt, lt, p, by_p, n_dat) {
-  tab<- place_fun(
-    dat, s_vec, c_vec, gt, lt, p, by_p, n_dat
-  ) %>%
-    mutate(tot = n_b + n_db) %>%
-    filter(tot > 19) %>%
-    filter(
-      !(
-        str_detect(full_place, "Lawn") |
-          str_detect(full_place, "Other") |
-          str_detect(full_place, "Bounds")
-      )
-    ) %>%
-    mutate(
-      place = case_when(
-        str_detect(full_place, "Prince") ~ "PLC",
-        str_detect(full_place, "Fenton") ~ "Fent",
-        str_detect(full_place, "LERC") ~ "MS",
-        str_detect(full_place, "Esslinger") ~ "Essl",
-        full_place == "Cascade" ~ "Cas",
-        str_detect(full_place, "Moss") ~ "Moss",
-        str_detect(full_place, "Black") ~ "BCC",
-        str_detect(full_place, "McArthur") ~ "Mac",
-        str_detect(full_place, "Friendly") ~ "Friend",
-        str_detect(full_place, "Saunders") ~ "Saun Stad",
-        full_place == "Tennis Indoor" ~ "TI",
-        str_detect(full_place, "Fine") ~ "FAS",
-        str_detect(full_place, "Turf Field 1") ~ "TF1",
-        str_detect(full_place, "History") ~ "MN CH",
-        str_detect(full_place, "Turf Field 3") ~ "TF3",
-        str_detect(full_place, "Duck") ~ "DS",
-        str_detect(full_place, "Longhouse") ~ "MNL",
-        str_detect(full_place, "Program Barn") ~ "Barn",
-        str_detect(full_place, "Straub/Earl") ~ "Straub/ Earl",
-        str_detect(full_place, "Center South") ~ "LLC South",
-        #all of the above too few to represent full label in small rectangle
-        #for us undergrad overall and with the exception of PLC these places
-        #don't affect other treemaps and PLC needs abbreviation in the others
-        TRUE ~ full_place
-      )
-    ) %>%
-    group_by(place) %>%
-    summarise(
-      incl = mean(incl),
-      tot = sum(tot)
-    )
-  return(tab)
-}
+################################################
 
 # Function for tree map
 inclusive_tree_fun <- function(dat) {
@@ -278,207 +193,45 @@ inclusive_tree_fun <- function(dat) {
         return(plot)
 }
 
-```
-
-## Standardize
-```{r}
-library(tidyverse)
-library(viridis)
-library(reactable)
-library(htmltools)
-library(magick)
-library(treemapify)
-library(udpipe)
-library(tidytext)
-library(wordcloud2)
-library(igraph)
-library(ggraph)
-
-ay_1<- 2122 #CHANGE year (academic year format 1920 etc.)
-ay_2<- 2223 #CHANGE year (academic year format 1920 etc.)
-
-#function for big Ns that have , marks
-big_n<- function(x) {
-  prettyNum(x, big.mark = ",", scientific = F)
-}
-
-#stats that get 1 decimal like percentages
-stat_1<- function(x) {
-  formatC(x, format = "f", digits = 1)
-}
-
-#get place names
-places<- read_csv(
-  paste0(
-    "data/processed/pbb_eoy_1718_thru_",
-    ay_1,
-    "_places.csv"
-  )
-)
-
-waves<- c("Spring 2022, Spring 2020, Spring 2019, Spring 2018") #CHANGE add waves as more data come in
-
-
-#read data ####
-
-#get long campus data
-campus_long<- read_csv(
-  paste0(
-    "data/processed/pbb_eoy_1718_thru_",
-    ay_1,
-    "_campus_bdb_long.csv"
-  )
-) %>%
-  left_join(
-    .,
-    places %>%
-      filter(level == "campus"),
-    by = c("ayear", "place")
-  ) %>%
-  within(cohort[is.na(cohort)]<- "no cohort") %>% #a trick to let me do the same function to data that are either cohort-specific or cohort-irrelevant
-  within(
-    full_place[
-      full_place == "Thompsons"
-    ]<- "Thompson's University Center"
-  )
-
-#get survey demos ####
-#need to get gi and so from eoy when available, otherwise bl
-#need to get others from bl data
-
-#get recs demos ####
-#need to add eoy22 who don't have bl to a set with bl
-
-#combine above for doing analyses by demos ####
-#join ds and dr to campus_long - reference bl wb by demos
-
-#get emu long data
-emu_long<- read_csv(
-  paste0(
-    "data/processed/pbb_eoy_1718_thru_",
-    ay_1,
-    "_emu_bdb_long.csv"
-  )
-) %>%
-  left_join(
-    .,
-    places %>%
-      filter(level == "emu"),
-    by = c("ayear", "place")
-  ) %>%
-  within(cohort[is.na(cohort)]<- "no cohort") %>%
-  filter(
-    place_num %in% c("b1", "b2", "b3", "db1", "db2", "db3")
-  ) %>%
-  within(
-    full_place[
-      full_place == "Craft Center - Outdoor"
-    ]<- "Craft Center"
-  )
-
-#compute n resps > 3 (method was split across 2 maps in 1718 and 1819. students were instructed to select 3 but some selected more)
-too_many_resps_emu<- read_csv(
-  paste0(
-    "data/processed/pbb_eoy_1718_thru_",
-    ay_1,
-    "_emu_bdb_wide.csv"
-  ),
-  guess_max = 1900
-) %>%
-  filter(
-    !is.na(b4) |
-      !is.na(db4)
-  ) %>%
-  group_by(ayear) %>%
-  summarise(n = sum(!is.na(id)))
-
-#combine above for doing analyses by demos ####
-#join ds and dr to emu_long - reference bl wb by demos
-
-#lt term in ns_fun, nw_fun, and place_fun for us undergrad overall and us undergrad by cohort sets
-lt_term<- 2223 #CHANGE increment term as ayears are added
-
-#make vectors for indexing ####
-vnm_long<- names(campus_long) #same as emu_long
-
-cohorts<- c(
-  "0102",
-  "0708",
-  "1011",
-  "1112",
-  "1415",
-  "1516",
-  "1617",
-  "1718",
-  "1819",
-  "1920",
-  "2021",
-  "2122",
-  "2223"
-  #CHANGE add cohorts as cohorts are added
-)
-
-classes<- c("Freshman", "Sophomore", "Junior", "Senior")
-
-noco<- "no cohort"
-
-vnm_pl<- c(
-  "full_place",
-  "incl",
-  "n_b",
-  "n_db",
-  "perc_click_b",
-  "perc_click_db",
-  "perc_stud_b",
-  "perc_stud_db"
-)
-```
-
-
-## UI draft
-
-```{r}
-# UI draft
-# Used code from the campus-belonging rmd
-
-dashboardBody(
-  tabItem(tabName = "table", 
-          fluidRow(
-              column(3, uiOutput("dynamicFilter")),
-              column(6, reactableOutput("table") %>% withSpinner(color = "navy")),
-              column(3, plotOutput("treemap"))
-          )
-  )
-)
-
-
-```
-
-## Server draft
-
-```{r server}
-# Server Draft
-# need some of these but not all I think
-library(shiny)
-library(tidyverse)
-library(rvest)
-library(leaflet.extras)
-library(reactable)
+########################################
 
 shinyServer(function(input, output) {
     
     # Dynamic UI for additional filters
     output$dynamicFilter <- renderUI({
-        if(input$typeSelect == "Undergraduate") {
+    if(input$typeSelect == "Undergraduate") {
+        # Default tag list for Undergraduate
+        filters <- tagList(
             selectInput("yearSelect", "Select Year:", 
-                        choices = c("2018", "2019", "2020", "2022", "Overall"))
-        } else if(input$typeSelect == "International") {
+                        choices = c("2018", "2019", "2020", "2022", "Overall")),
+            selectInput("cohortSelect", "Select Cohort:", 
+                        choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+        )
+
+        # Add floor selection for specific years
+        if (input$yearSelect %in% c("2018", "2019")) {
+            filters <- tagList(
+                filters,
+                selectInput("floorSelect", "Select Floor:", 
+                            choices = c("Full Building", "Level 1", "Level 2"))
+            )
+        }
+
+        return(filters)
+    } else if(input$typeSelect == "International") {
+        # Filters for International
+        return(tagList(
             selectInput("intSelect", "Select Category:", 
                         choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
-        } else {
-            return()
-        }
-    })
+        ))
+    } else if(input$typeSelect == "Graduate") {
+        # Filters for Graduate
+        return(tagList(
+            selectInput("yearSelect", "Select Year:", 
+                        choices = c("2022", "Overall"))
+        ))
+    }
+  })
 
     
     # Render the correct table based on the input selection
