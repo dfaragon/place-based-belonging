@@ -13,8 +13,20 @@ library(tigris)
 library(reactable)
 library(markdown)
 
-path <- "/Users/aguha/Desktop/r_projects/oar/pbb_app"
+path <- "/Users/aguha/Desktop/r_projects/oar/place-based-belonging/app"
 setwd(path)
+
+col1 <- c(rep("Undergraduate", 17), rep("International", 2), rep("Graduate", 2))
+col2 <- c(rep("2022",5), rep("2020",5), rep("2019",5), "2018", "Overall",
+          "Undergrad and Grad 2022", "Undergrad 2020",
+          "2022", "Overall")
+col3 <- c(rep(c("All Years", "4th Year", "3rd Year", "2nd Year", "1st Year"),3), #2022-2019
+          "All Years", #2018
+          NA, #Overall UG
+          rep(NA, 4)
+          )
+
+dynamic_filter <- data.frame(col1, col2, col3)
 
 ###########
 # LOAD UI #
@@ -78,7 +90,7 @@ shinyUI(fluidPage(
                 # about section
                 # uiOutput("aboutContent")
                 includeMarkdown("www/pbb-about.md")
-                # I am losing my mind
+                # I am losing my mind with this section
 
         ),
 
@@ -105,13 +117,20 @@ shinyUI(fluidPage(
         tabItem(tabName = "emu",
 
                 fluidRow(
-                  column(width = 6,
-                         box(width = NULL, uiOutput("dynamicFilter")),
-                         box(width = NULL, background = "black",
-                             "Some text here.")),
-                  column(width = 6,
-                         box(width = NULL, title = "Belong", solidHeader = TRUE),
-                         box(width = NULL, title = "Don't Belong", solidHeader = TRUE)))
+                  column(4, uiOutput("typeSelect")),
+                  column(4, uiOutput("yearSelect")),
+                  column(4, uiOutput("cohortSelect"))),
+                fluidRow(
+                  reactableOutput("table") %>% withSpinner(color = "green"))
+
+                # fluidRow(
+                #   column(width = 6,
+                #          box(width = NULL, uiOutput("dynamicFilter")),
+                #          box(width = NULL, background = "black",
+                #              "Some text here.")),
+                #   column(width = 6,
+                #          box(width = NULL, title = "Belong", solidHeader = TRUE),
+                #          box(width = NULL, title = "Don't Belong", solidHeader = TRUE)))
         ),
 
         tabItem(tabName = "inclusiveness",
