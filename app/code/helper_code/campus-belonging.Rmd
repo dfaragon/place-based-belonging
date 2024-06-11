@@ -76,6 +76,7 @@ shinyServer(function(input, output) {
                         choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           # Here, do I add an option for campus inclusiveness after choosing the hear and needing to choose all years, 4th-year, 3-rd year etc. 
 =======
           #add whichever remaining filter (see pbb HTML)
@@ -83,6 +84,9 @@ shinyServer(function(input, output) {
 =======
           #add whichever remaining filter (see pbb HTML)
 >>>>>>> main
+=======
+          #add whichever remaining filter (see pbb HTML)
+>>>>>>> e02c7eace3696a175e74d0b09ea47eae790a3956
         } else {
             return()
         }
