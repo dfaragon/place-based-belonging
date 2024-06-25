@@ -1,33 +1,227 @@
 ---
 title: "Campus Belonging"
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(shinydashboard)
 library(usethis)
 use_git_config(user.name = "dfaragon", user.email = "dotz.da@gmail.com")
 ```
-
 ## What we need here:
-
 - campus maps, broken into "belong" on top and "don't belong" on bottom
 - filter apply to both maps
 - maps are already extracted in "maps" folder: i have the standardized code for this already created so let me know if you are doing this piece -anwesha
 - hover for text (see NPS example)
-- just heat maps? 
-
+- just heat maps?
 ## Brian's Code
 ```{r}
-
+library(reactable)
+library(htmltools)
+library(treemapify)
+#function for interactive reactables
+reactable_fun<- function(dat) {
+  options(
+    reactable.theme = reactableTheme(
+      color = "hsl(233, 9%, 87%)",
+      backgroundColor = "hsl(233, 9%, 19%)",
+      borderColor = "hsl(233, 9%, 22%)",
+      stripedColor = "hsl(233, 12%, 22%)",
+      highlightColor = "hsl(233, 12%, 24%)",
+      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
+    )
+  )
+  rt<- dat %>%
+    reactable(
+      .,
+      groupBy = "agg_place",
+      showPageSizeOptions = T,
+      paginateSubRows = T,
+      defaultSorted = c("agg_place", "full_place"),
+      sortable = T,
+      showSortable = T,
+      striped = T,
+      highlight = T,
+      bordered = T,
+      defaultColDef = colDef(
+        vAlign = "center",
+        headerVAlign = "bottom"
+      ),
+      columns = list(
+        agg_place = colDef(
+          name = "Aggregated Place",
+          filterable = T,
+          align = "left",
+          minWidth = 240
+        ),
+        full_place = colDef(
+          name = "Place",
+          align = "left",
+          minWidth = 215
+        ),
+        n_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Belong"
+            }'
+          )
+        ),
+        n_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Don\'t" +
+              "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        incl = colDef(
+          aggregate = "mean",
+          name = "Inclusive",
+          align = "center",
+          format = colFormat(percent = T, digits = 1)
+        )
+      )
+    )
+  return(rt)
+}
+#function for inclusiveness treemaps
+inclusive_tree_fun<- function(dat) {
+  df<- dat
+  cp<- as.vector(
+    if_else(df$incl > 75, "#30313A", "#FCFFA4")
+  )
+  plot<- dat %>%
+    ggplot(
+      .,
+      aes(
+        area = tot,
+        fill = incl,
+        label = place
+      )
+    ) +
+    geom_treemap() +
+    geom_treemap_text(
+      place = "center",
+      grow = T,
+      reflow = T,
+      color = cp
+    ) +
+    scale_fill_viridis_c(
+      name = "Inclusiveness",
+      option = "inferno",
+      limits = c(0, 100)
+    ) +
+    theme(
+      panel.background = element_rect(fill = "#30313A"),
+      plot.background = element_rect(color = "#30313A", fill = "#30313A"),
+      legend.background = element_rect(fill = "#30313A"),
+      legend.title = element_text(color = "#FCFFA4"),
+      legend.text = element_text(color = "#FCFFA4"),
+      plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
+      #top, right, bottom, left, units
+    )
+  return(plot)
+}
+#function for inclusiveness bar plots
+inclusive_bar_fun<- function(dat, b_cp, e_cp) {
+  plot<- dat %>%
+    ggplot(
+      .,
+      aes(
+        x = agg_place,
+        y = incl,
+        fill = agg_place
+      )
+    ) +
+    geom_bar(
+      stat = "identity",
+      position = "dodge"
+    ) +
+    xlab("") +
+    ylab("Inclusiveness") +
+    scale_y_continuous(
+      breaks = c(0, 25, 50, 75, 100),
+      limits = c(0, 125)
+    ) +
+    scale_fill_viridis_d(
+      option = "inferno",
+      begin = b_cp,
+      end = e_cp
+    ) +
+    coord_flip() +
+    geom_text(
+      aes(label = sprintf("%0.1f", incl)),
+      hjust = -0.5,
+      size = 5,
+      color = "#FCFFA4"
+    ) +
+    guides(fill = "none") +
+    theme(
+      panel.background = element_rect(fill = "#30313A"),
+      plot.background = element_rect(color = "#30313A", fill = "#30313A"),
+      panel.grid = element_blank(),
+      axis.title = element_text(size = 13, color = "#FCFFA4", hjust = 0.375),
+      axis.text = element_text(size = 12, color = "#FCFFA4"),
+      axis.ticks.y = element_blank()
+    )
+  return(plot)
+}
 ```
-
-## Standardized
-```{r}
-
-```
-
-## Data Tables 
+## Data Tables
 ```{r}
 # # bar plots
 # tables_bp <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_bp.rds")
@@ -35,67 +229,39 @@ use_git_config(user.name = "dfaragon", user.email = "dotz.da@gmail.com")
 # tables_tm <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_tm.rds")
 # # reactable tables
 # tables_rt <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_rt.rds")
-
 ```
-  
-
 ## UI draft
 ```{r}
 dashboardBody(
-  tabItem(tabName = "table", 
-                    
+  tabItem(tabName = "table",
                         # summary section
-                        # includeMarkdown("www/summary.md"),    
+                        # includeMarkdown("www/summary.md"),
                         fluidRow(
                             column(3, uiOutput("dynamicFilter")),
-<<<<<<< HEAD
-                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))))
-                            # column(3, inclusive_bar_fun("campusImage")) %>% withSpinner(color =         
-#   ))
-=======
-                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy"))
+                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy")),
+                            column(3, reactableOutput("table")) %>% withSpinner(color = "navy") #,
           #add map tabItem
   ))
->>>>>>> main
 ```
-
-
 ## Server draft
 ```{r}
 # add reactable_fun() is here
-
 shinyServer(function(input, output) {
-    
     # Dynamic UI for additional filters
     output$dynamicFilter <- renderUI({
         if(input$typeSelect == "US Undergraduate") { # added US for clarity
-            selectInput("yearSelect", "Select Year:", 
+            selectInput("yearSelect", "Select Year:",
                         choices = c("2018", "2019", "2020", "2022", "Overall"))
         } else if(input$typeSelect == "International") {
-            selectInput("intSelect", "Select Category:", 
+            selectInput("intSelect", "Select Category:",
                         choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-          # Here, do I add an option for campus inclusiveness after choosing the hear and needing to choose all years, 4th-year, 3-rd year etc. 
-=======
-          #add whichever remaining filter (see pbb HTML)
->>>>>>> main
-=======
-          #add whichever remaining filter (see pbb HTML)
->>>>>>> main
-=======
-          #add whichever remaining filter (see pbb HTML)
->>>>>>> e02c7eace3696a175e74d0b09ea47eae790a3956
         } else {
             return()
         }
     })
-    
-    
-    # Render the correct table based on the input selection
-########  campus summary tables  ########   
-    ## do not change this is your original example and is correct ## 
+###########################
+## CAMPUS SUMMARY TABLES ##
+###########################
     output$table <- renderReactable({
         if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
             reactable_fun(us_ug)
@@ -117,9 +283,9 @@ shinyServer(function(input, output) {
             reactable_fun(gr_ay2122)
         }
     })
-    
-    
-########  campus heat maps  ########    
+######################
+## CAMPUS HEAT MAPS ##
+######################
     output$campusHeatMaps <- renderImage({
         if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "AllYears") {
             tags$div(
@@ -223,45 +389,16 @@ shinyServer(function(input, output) {
             )
         }
     })
-
 })
-    
-
-# first version     
-       # output$campusImage <- renderImage({
-        # Decide which table to render after the data has been effectively filtered based on the following filters
-    #     if(input$typeSelect == "US Undergraduate" && (is.null(input$yearSelect) || input$yearSelect == "Overall")) {
-    #         return("Select year breakdown :)")
-    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2022") {
-    #         list(src = "maps/b_map_cam_us_ug_ay2122.png")
-    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2020") {
-    #         list(src = "maps/b_map_cam_us_ug_ay1920.png")
-    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2019") {
-    #         list(src = "maps/b_map_cam_us_ug_ay1819.png")
-    #     } else if(input$typeSelect == "US Undergraduate" && length(input$yearSelect) && input$yearSelect == "2018") {
-    #         list(src = "maps/b_map_cam_us_ug_ay1718.png")
-    #     } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
-    #         return("Select year breakdown :)")
-    #     } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
-    #         return(rt_cam_i_ay2122)
-    #         list(src = "maps/b_map_cam_i_ug_ay2122.png")
-    #     } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
-    #         return(rt_cam_i_ug_ay1920)
-    #         list(src = "maps/b_map_cam_i_ug_ay1920.png")
-    #     } else if(input$typeSelect == "Graduate") {
-    #         list(src = "maps/b_map_cam_gr_ay2122.png")
-    #     }
-    # })
-
-
-########  campus belong tree plots  ########  
-#### may be computationally expensive 
+#######################
+## CAMPUS TREE PLOTS ##
+#######################
+#### may be computationally expensive
     output$campusTreeMaps <- renderPlotly({
         # Ensure yearSelect and classSelect are not null
         if (is.null(input$yearSelect) || is.null(input$classSelect) || input$yearSelect == "Overall") {
             return(NULL)
         }
-        
         # Mapping the years to their codes
         yearMapping <- list(
             "Spring 2018" = "ay1718",
@@ -270,7 +407,6 @@ shinyServer(function(input, output) {
             "Spring 2021" = "ay2021",
             "Spring 2022" = "ay2122"
         )
-
         # Mapping the class to their codes
         classMapping <- list(
             "1st-Year" = "c1",
@@ -278,29 +414,22 @@ shinyServer(function(input, output) {
             "3rd-Year" = "c3",
             "4th-Year" = "c4"
         )
-
         yearCode <- yearMapping[[input$yearSelect]]
         classCode <- classMapping[[input$classSelect]]
-
         # Generate the data for the tree map
         dat <- your_data_preparation_function(yearCode, classCode)  # Assuming you have a function for this
-
         # Call the inclusive_tree_fun function to generate the tree map
         tree_map <- inclusive_tree_fun(dat)
-
         # Return the plotly object
         tree_map
     })
-
-
-
-#### code if the computational cost of creating the maps is too much and we need to use already developed images 
+#### code if the computational cost of creating the maps is too much and we need to use already developed images
 #     output$campusImage <- renderImage({
 #         # Ensure yearSelect and classSelect are not null
 #         if (is.null(input$yearSelect) || is.null(input$classSelect) || input$yearSelect == "Overall") {
 #             return("Select year breakdown :)")
 #         }
-#         
+#
 #         # Mapping the years to their codes
 #         yearMapping <- list(
 #             "Spring 2018" = "ay1718",
@@ -309,22 +438,22 @@ shinyServer(function(input, output) {
 #             "Spring 2021" = "ay2021",
 #             "Spring 2022" = "ay2122"
 #         )
-# 
+#
 #         # Mapping the class to their codes
 #         classMapping <- list(
-#             "AllYears" = "c_all", # would require that those without class add "c_all" in png image name 
+#             "AllYears" = "c_all", # would require that those without class add "c_all" in png image name
 #             "1st-Year" = "c2122",
 #             "2nd-Year" = "c2021",
 #             "3rd-Year" = "c1920",
 #             "4th-Year" = "c1819"
 #         )
-# 
+#
 #         yearCode <- yearMapping[[input$yearSelect]]
 #         classCode <- classMapping[[input$classSelect]]
-# 
+#
 #         belongImage <- ""
 #         dontBelongImage <- ""
-# 
+#
 #         # Constructing the image paths based on the typeSelect
 #         if (input$typeSelect == "US Undergraduate") {
 #             belongImage <- paste0("maps/map_cam_b_us_ug_", yearCode, "_", classCode, ".png")
@@ -336,7 +465,7 @@ shinyServer(function(input, output) {
 #             belongImage <- paste0("maps/map_cam_b_gr_", yearCode, "_", classCode, ".png")
 #             dontBelongImage <- paste0("maps/map_cam_db_gr_", yearCode, "_", classCode, ".png")
 #         }
-# 
+#
 #         # Rendering both images
 #         tags$div(
 #             tags$img(src = belongImage, style = "display:inline-block;margin-right:10px;"),
@@ -344,10 +473,9 @@ shinyServer(function(input, output) {
 #         )
 #     })
 # }
-
-        
-########  campus bar plots  ########    
-   ## good ## 
+######################
+## CAMPUS BAR PLOTS ##
+######################
     output$campusBarPlots <- renderReactable({
         if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Overall") {
             reactable_fun(cam_us_ug)
@@ -363,7 +491,7 @@ shinyServer(function(input, output) {
             inclusive_bar_fun(cam_us_ug_ay2122_c1819)
           #### spring 2020, 2021 was skipped
         } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2020" && input$yearSelect == "1st-through-5th-Year") {
-            inclusive_bar_fun(cam_us_ug_ay1920) 
+            inclusive_bar_fun(cam_us_ug_ay1920)
         } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "4th-Year") {
             inclusive_bar_fun(us_ug_ay1920_1920)
         } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2022" && input$yearSelect == "3th-Year") {
@@ -374,7 +502,7 @@ shinyServer(function(input, output) {
             inclusive_bar_fun(us_ug_ay2122_c1617)
                     #### spring 2019
         } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "1st-through-4th-Year") {
-            inclusive_bar_fun(cam_us_ug_ay1819) 
+            inclusive_bar_fun(cam_us_ug_ay1819)
         } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "4th-Year") {
             inclusive_bar_fun(us_ug_ay1819_1819)
         } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2019" && input$yearSelect == "3th-Year") {
@@ -385,9 +513,9 @@ shinyServer(function(input, output) {
             inclusive_bar_fun(us_ug_ay1819_c1516)
                               #### spring 2018
         } else if(input$typeSelect == "US Undergraduate" && input$yearSelect == "Spring2018" && input$yearSelect == "1st-through-3th-Year") {
-            inclusive_bar_fun(cam_us_ug_ay1718) 
+            inclusive_bar_fun(cam_us_ug_ay1718)
         } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
-            inclusive_bar_fun(i) # where is this one?? 
+            inclusive_bar_fun(i) # where is this one??
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad Spring 2022") {
             inclusive_bar_fun(cam_i_ay2122)
         } else if(input$typeSelect == "International" && input$intSelect == "Undergrad Spring 2020") {
@@ -396,7 +524,4 @@ shinyServer(function(input, output) {
             inclusive_bar_fun(cam_gr_ay2122)
         }
     })
-
-
 ```
-
