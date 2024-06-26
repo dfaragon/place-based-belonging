@@ -26,10 +26,10 @@ dashboardBody(
           fluidRow(
               column(3, uiOutput("dynamicFilter")),
               column(6, reactableOutput("table") %>% withSpinner(color = "navy")),
-              column(3, plotOutput("treemap"))
+              column(3, plotOutput("treemap")),
+              column(3, plotOutput("treemap_emu")))
           )
   )
-)
 
 
 ```
@@ -49,7 +49,12 @@ library(leaflet.extras)
 
 ########################################
 
-#function for interactive reactables
+## Functions ##
+
+########################################
+
+# Function for interactive reactables
+
 reactable_fun<- function(dat) {
   options(
     reactable.theme = reactableTheme(
@@ -171,9 +176,10 @@ reactable_fun<- function(dat) {
 }
 
 
-################################################
+##############################################
 
 # Function for tree map
+
 inclusive_tree_fun <- function(dat) {
         df <- dat
         cp <- as.vector(if_else(df$incl > 75, "#30313A", "#FCFFA4"))
@@ -194,6 +200,11 @@ inclusive_tree_fun <- function(dat) {
 }
 
 ########################################
+
+## Server Logic ##
+
+########################################
+
 
 shinyServer(function(input, output) {
     
@@ -257,7 +268,7 @@ shinyServer(function(input, output) {
         }
     })
     
-})
+
 
 # Render tree map based on input
     output$treemap <- renderPlot({
@@ -282,6 +293,7 @@ shinyServer(function(input, output) {
         }
     })
 
+})
 
 ```
 
